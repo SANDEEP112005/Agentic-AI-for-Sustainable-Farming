@@ -1,0 +1,11 @@
+# Weather API Configuration
+OPENWEATHER_API_KEY=your_openweathermap_api_key_here
+
+# Optional: Hugging Face API token for model downloads
+HUGGINGFACE_TOKEN=your_huggingface_token_here
+
+# Optional: Custom model paths
+LLAMA_MODEL_PATH=meta-llama/Llama-2-7b-chat-hf
+
+# Database Configuration
+DATABASE_PATH=database/sustainable_farming.db

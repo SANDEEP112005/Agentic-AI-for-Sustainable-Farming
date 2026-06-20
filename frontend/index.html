@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#16a34a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="AgriSmart AI — Smart Sustainable Farming Assistant">
+    <title>AgriSmart AI — Smart Farming</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="styles_modern.css">
+    <link rel="stylesheet" href="voice-styles.css">
+    <link rel="stylesheet" href="mobile-styles.css">
+</head>
+<body>
+
+<!-- ═══════════════ AUTH SCREEN (Simplified for Farmers) ═══════════════ -->
+<div class="auth-screen" id="auth-screen">
+    <div class="auth-bg">
+        <div class="auth-gradient"></div>
+    </div>
+
+    <!-- STEP 1: Language Selection (shown first) -->
+    <div class="auth-lang-picker" id="auth-lang-picker">
+        <div class="auth-lang-card">
+            <div class="auth-logo-icon"><i class="fas fa-leaf"></i></div>
+            <h1 class="auth-app-name">🌾 AgriSmart AI</h1>
+            <p class="auth-lang-prompt" id="auth-lang-prompt">Choose your language / अपनी भाषा चुनें</p>
+            <div class="auth-lang-grid">
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('en')"><span class="auth-lang-emoji">🇬🇧</span> English</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('hi')"><span class="auth-lang-emoji">🇮🇳</span> हिंदी</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('te')"><span class="auth-lang-emoji">🇮🇳</span> తెలుగు</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('kn')"><span class="auth-lang-emoji">🇮🇳</span> ಕನ್ನಡ</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('ta')"><span class="auth-lang-emoji">🇮🇳</span> தமிழ்</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('ml')"><span class="auth-lang-emoji">🇮🇳</span> മലയാളം</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('bn')"><span class="auth-lang-emoji">🇮🇳</span> বাংলা</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('gu')"><span class="auth-lang-emoji">🇮🇳</span> ગુજરાતી</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('mr')"><span class="auth-lang-emoji">🇮🇳</span> मराठी</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('pa')"><span class="auth-lang-emoji">🇮🇳</span> ਪੰਜਾਬੀ</button>
+                <button class="auth-lang-btn" onclick="selectAuthLanguage('or')"><span class="auth-lang-emoji">🇮🇳</span> ଓଡ଼ିଆ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: Choose Auth Method (Manual or Voice) -->
+    <div class="auth-method-picker" id="auth-method-picker" style="display:none">
+        <div class="auth-method-card">
+            <h2 class="auth-method-title" id="auth-method-title">How would you like to continue?</h2>
+            <p class="auth-method-sub" id="auth-method-sub">Choose typing or speaking</p>
+            <div class="auth-method-options">
+                <button class="auth-method-btn" id="auth-method-manual" onclick="showManualAuth()">
+                    <i class="fas fa-keyboard"></i>
+                    <span id="auth-method-manual-label">Type (Manual)</span>
+                    <small id="auth-method-manual-desc">Fill form by typing</small>
+                </button>
+                <button class="auth-method-btn voice-btn-glow" id="auth-method-voice" onclick="startVoiceAuth()">
+                    <i class="fas fa-microphone"></i>
+                    <span id="auth-method-voice-label">Speak (Voice)</span>
+                    <small id="auth-method-voice-desc">Just say your name</small>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 3: Simplified Manual Auth Form -->
+    <div class="auth-simple-form" id="auth-simple-form" style="display:none">
+        <div class="auth-simple-card">
+            <button class="auth-back-btn" onclick="goBackToMethodPicker()"><i class="fas fa-arrow-left"></i></button>
+            <div class="auth-simple-header">
+                <div class="auth-logo-icon-sm"><i class="fas fa-leaf"></i></div>
+                <h2 id="auth-simple-title">Welcome to AgriSmart</h2>
+            </div>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="signup" onclick="switchAuthTab('signup')"><i class="fas fa-user-plus"></i> <span id="tab-signup-label">New Farmer</span></button>
+                <button class="auth-tab" data-tab="login" onclick="switchAuthTab('login')"><i class="fas fa-sign-in-alt"></i> <span id="tab-login-label">Existing Farmer</span></button>
+            </div>
+            <!-- Simplified Signup — just name -->
+            <form id="signup-form" class="auth-form active" onsubmit="handleSignup(event)" novalidate>
+                <div class="form-group">
+                    <label for="signup-name" id="signup-name-label">👤 Your Name</label>
+                    <div class="input-wrap input-wrap-lg">
+                        <input type="text" id="signup-name" placeholder="Enter your name" class="input-lg" required>
+                        <button type="button" class="voice-fill-btn" onclick="voiceFillField('signup-name')" title="Speak your name"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <span class="field-error" id="signup-name-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="signup-phone" id="signup-phone-label">📱 Phone Number</label>
+                    <div class="input-wrap input-wrap-lg">
+                        <input type="tel" id="signup-phone" placeholder="+91 XXXXXXXXXX" class="input-lg" required>
+                        <button type="button" class="voice-fill-btn" onclick="voiceFillField('signup-phone')" title="Speak your phone number"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <span class="field-error" id="signup-phone-error"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full btn-auth btn-auth-lg" id="signup-submit-btn">
+                    <i class="fas fa-arrow-right"></i> <span id="signup-submit-label">Start Farming</span>
+                </button>
+            </form>
+            <!-- Simplified Login — just name -->
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)" novalidate>
+                <div class="form-group">
+                    <label for="login-name" id="login-name-label">👤 Your Name</label>
+                    <div class="input-wrap input-wrap-lg">
+                        <input type="text" id="login-name" placeholder="Enter your name" class="input-lg" required>
+                        <button type="button" class="voice-fill-btn" onclick="voiceFillField('login-name')" title="Speak your name"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <span class="field-error" id="login-name-error"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full btn-auth btn-auth-lg" id="login-submit-btn">
+                    <i class="fas fa-sign-in-alt"></i> <span id="login-submit-label">Continue</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Voice Auth Overlay -->
+    <div class="voice-auth-overlay" id="voice-auth-overlay" style="display:none">
+        <div class="voice-auth-card">
+            <button class="auth-back-btn" onclick="cancelVoiceAuth()"><i class="fas fa-times"></i></button>
+            <div class="voice-auth-animation" id="voice-auth-anim">
+                <div class="voice-ripple"></div>
+                <div class="voice-ripple delay-1"></div>
+                <div class="voice-ripple delay-2"></div>
+                <i class="fas fa-microphone voice-auth-mic"></i>
+            </div>
+            <h2 class="voice-auth-status" id="voice-auth-status">Listening...</h2>
+            <p class="voice-auth-prompt" id="voice-auth-prompt">Please say your name clearly</p>
+            <div class="voice-auth-result" id="voice-auth-result" style="display:none">
+                <p id="voice-auth-heard"></p>
+                <div class="voice-auth-actions">
+                    <button class="btn btn-primary" id="voice-auth-confirm-btn" onclick="confirmVoiceAuth()"><i class="fas fa-check"></i> <span id="voice-confirm-label">Yes, that's me</span></button>
+                    <button class="btn btn-outline" id="voice-auth-retry-btn" onclick="retryVoiceAuth()"><i class="fas fa-redo"></i> <span id="voice-retry-label">Try again</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Face Auth Overlay -->
+    <div class="face-auth-overlay" id="face-auth-overlay" style="display:none">
+        <div class="voice-auth-card">
+            <button class="auth-back-btn" onclick="goBackFromFaceAuth()"><i class="fas fa-times"></i></button>
+            <h2 style="color:#166534;font-size:1.2rem;margin-bottom:0.5rem" id="face-auth-title">\uD83D\uDCF8 Face Verification</h2>
+            <p style="color:#6b7280;font-size:0.9rem;margin-bottom:1rem" id="face-auth-prompt">Look at the camera to verify your identity</p>
+            <div class="face-camera-wrap">
+                <video id="face-video" autoplay playsinline muted style="width:100%;max-width:280px;border-radius:16px;border:3px solid #16a34a"></video>
+                <canvas id="face-canvas" style="display:none"></canvas>
+                <div class="face-scan-line" id="face-scan-line"></div>
+            </div>
+            <div id="face-auth-status" style="margin-top:1rem;font-weight:600;color:#16a34a">Starting camera...</div>
+            <div id="face-auth-actions" style="display:none;margin-top:1rem">
+                <p style="font-weight:600;font-size:1.1rem;color:#166534" id="face-match-name"></p>
+                <div style="display:flex;gap:0.75rem;justify-content:center;margin-top:0.75rem">
+                    <button class="btn btn-primary" onclick="confirmFaceAuth()"><i class="fas fa-check"></i> <span id="face-confirm-label">Yes, that's me</span></button>
+                    <button class="btn btn-outline" onclick="retryFaceAuth()"><i class="fas fa-redo"></i> <span id="face-retry-label">Try again</span></button>
+                </div>
+            </div>
+            <div id="face-register-section" style="display:none;margin-top:1rem">
+                <p style="color:#16a34a;font-weight:600;font-size:0.95rem" id="face-new-label">Registering your face for future logins...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ APP SHELL ═══════════════ -->
+<div class="app-shell" id="app-shell" style="display:none">
+
+    <!-- ──── SIDEBAR (Desktop) ──── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="sidebar-logo-icon"><i class="fas fa-leaf"></i></div>
+                <div><span class="sidebar-brand" data-i18n="auth.appName">AgriSmart AI</span><span class="sidebar-sub" data-i18n="nav.smartFarming">Smart Farming</span></div>
+            </div>
+        </div>
+        <div class="sidebar-profile" id="sidebar-profile">
+            <div class="sidebar-avatar" id="sidebar-avatar">F</div>
+            <div class="sidebar-user">
+                <span class="sidebar-username" id="sidebar-username">Farmer</span>
+                <span class="sidebar-farmname" id="sidebar-farmname">My Farm</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <span class="sidebar-section-label">Main</span>
+            <a class="sidebar-link active" data-page="dashboard" onclick="navigate('dashboard')"><i class="fas fa-th-large"></i><span data-i18n="nav.dashboard">Dashboard</span></a>
+            <a class="sidebar-link" data-page="farm-setup" onclick="navigate('farm-setup')"><i class="fas fa-tractor"></i><span data-i18n="nav.farmSetup">Farm Setup</span></a>
+            <a class="sidebar-link" data-page="recommendation" onclick="navigate('recommendation')"><i class="fas fa-seedling"></i><span data-i18n="nav.recommendations">AI Recommendations</span></a>
+
+            <span class="sidebar-section-label">Planning &amp; Tools</span>
+            <a class="sidebar-link" data-page="rotation" onclick="navigate('rotation')"><i class="fas fa-calendar-alt"></i><span data-i18n="nav.cropPlanner">Crop Planner</span></a>
+            <a class="sidebar-link" data-page="fertilizer" onclick="navigate('fertilizer')"><i class="fas fa-flask"></i><span data-i18n="nav.fertilizer">Fertilizer Calculator</span></a>
+            <a class="sidebar-link" data-page="crop-diagnosis" onclick="navigate('crop-diagnosis')"><i class="fas fa-camera"></i><span data-i18n="nav.cropDiagnosis">Crop Diagnosis</span></a>
+
+            <span class="sidebar-section-label">Intelligence</span>
+            <a class="sidebar-link" data-page="weather" onclick="navigate('weather')"><i class="fas fa-cloud-sun"></i><span data-i18n="nav.weather">Weather</span></a>
+            <a class="sidebar-link" data-page="soil-analysis" onclick="navigate('soil-analysis')"><i class="fas fa-microscope"></i><span data-i18n="nav.soilAnalysis">Soil Analysis</span></a>
+            <a class="sidebar-link" data-page="pest-prediction" onclick="navigate('pest-prediction')"><i class="fas fa-bug"></i><span data-i18n="nav.pestPrediction">Pest Prediction</span></a>
+            <a class="sidebar-link" data-page="sustainability" onclick="navigate('sustainability')"><i class="fas fa-chart-bar"></i><span data-i18n="nav.sustainability">Sustainability</span></a>
+
+            <span class="sidebar-section-label">Market &amp; Finance</span>
+            <a class="sidebar-link" data-page="market" onclick="navigate('market')"><i class="fas fa-chart-line"></i><span data-i18n="nav.market">Market Forecast</span></a>
+            <a class="sidebar-link" data-page="mandi-prices" onclick="navigate('mandi-prices')"><i class="fas fa-store"></i><span data-i18n="nav.mandiPrices">Mandi Prices</span></a>
+            <a class="sidebar-link" data-page="expense-tracker" onclick="navigate('expense-tracker')"><i class="fas fa-wallet"></i><span data-i18n="nav.expenseTracker">Expense Tracker</span></a>
+            <a class="sidebar-link" data-page="govt-schemes" onclick="navigate('govt-schemes')"><i class="fas fa-landmark"></i><span data-i18n="nav.govtSchemes">Govt Schemes</span></a>
+
+            <span class="sidebar-section-label">Social</span>
+            <a class="sidebar-link" data-page="community" onclick="navigate('community')"><i class="fas fa-users"></i><span data-i18n="nav.community">Community</span></a>
+            <a class="sidebar-link" data-page="chatbot" onclick="navigate('chatbot')"><i class="fas fa-comment-dots"></i><span data-i18n="nav.chatbot">AI Assistant</span><span class="sidebar-badge">AI</span></a>
+            <a class="sidebar-link" data-page="voice-notes" onclick="navigate('voice-notes')"><i class="fas fa-microphone-alt"></i><span data-i18n="nav.voiceNotes">Voice Notes</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <a class="sidebar-link" data-page="history" onclick="navigate('history')"><i class="fas fa-history"></i><span data-i18n="nav.history">My History</span></a>
+            <a class="sidebar-link" data-page="offline" onclick="navigate('offline')"><i class="fas fa-cloud"></i><span data-i18n="nav.offline">Offline Mode</span></a>
+            <a class="sidebar-link" data-page="profile" onclick="navigate('profile')"><i class="fas fa-cog"></i><span data-i18n="nav.settings">Settings</span></a>
+            <button class="sidebar-link logout-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span data-i18n="nav.logout">Logout</span></button>
+        </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- ──── MAIN AREA ──── -->
+    <div class="main-area">
+
+        <!-- Top Header Bar -->
+        <header class="top-header" id="top-header">
+            <div class="top-header-left">
+                <button class="hamburger-btn" id="hamburger-btn" onclick="openMobileMenu()" aria-label="Open menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
+                    <a href="#" onclick="navigate('dashboard'); return false;">Home</a>
+                    <i class="fas fa-chevron-right bc-sep"></i>
+                    <span id="breadcrumb-current">Dashboard</span>
+                </nav>
+            </div>
+            <div class="top-header-right">
+                <div class="header-search" id="header-search">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="global-search" placeholder="Search features..." oninput="handleGlobalSearch(this.value)" autocomplete="off">
+                    <div class="search-results" id="search-results" style="display:none"></div>
+                </div>
+                <button class="header-icon-btn" id="notif-btn" onclick="toggleNotifPanel()" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-dot" id="notif-dot"></span>
+                </button>
+                <div class="header-user-dropdown" id="header-user-dd">
+                    <button class="header-avatar-btn" onclick="toggleUserDropdown()">
+                        <div class="header-avatar" id="header-avatar">F</div>
+                        <span class="header-username" id="header-username">Farmer</span>
+                        <i class="fas fa-chevron-down header-caret"></i>
+                    </button>
+                    <div class="user-dropdown-menu" id="user-dropdown-menu" style="display:none">
+                        <a onclick="navigate('profile')"><i class="fas fa-user-circle"></i> My Profile</a>
+                        <a onclick="navigate('profile')"><i class="fas fa-cog"></i> Settings</a>
+                        <a onclick="navigate('history')"><i class="fas fa-history"></i> History</a>
+                        <div class="dropdown-divider"></div>
+                        <a onclick="logout()" class="dropdown-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Notification Panel -->
+        <div class="notif-panel" id="notif-panel" style="display:none">
+            <div class="notif-panel-header">
+                <h4>Notifications</h4>
+                <button class="notif-clear" onclick="clearNotifications()">Clear all</button>
+            </div>
+            <div class="notif-list" id="notif-list">
+                <div class="notif-empty"><i class="fas fa-bell-slash"></i><p>No new notifications</p></div>
+            </div>
+        </div>
+
+        <!-- Offline Banner -->
+        <div class="offline-bar" id="offline-bar" style="display:none">
+            <i class="fas fa-wifi-slash"></i> <span data-i18n="offline.banner">You're offline. Changes will sync when connection is restored.</span>
+            <span class="pending-badge" id="pending-badge" style="display:none"><i class="fas fa-sync-alt fa-spin"></i> <span id="pending-count">0</span> pending</span>
+        </div>
+
+        <!-- ═══════════════ SIMPLE MODE TOGGLE (for illiterate farmers) ═══════════════ -->
+        <button class="simple-mode-toggle" id="simple-mode-toggle" onclick="toggleSimpleMode()" title="Simple Mode for Easy Use">
+            <span class="smt-icon">👨‍🌾</span>
+            <span class="smt-label" data-i18n="simple.toggle">Simple Mode</span>
+        </button>
+
+        <!-- ═══════════════ PICTURE NAVIGATION (Simple Mode) ═══════════════ -->
+        <div class="picture-nav" id="picture-nav" style="display:none">
+            <div class="picture-nav-grid">
+                <button class="pic-nav-btn" onclick="navigate('farm-setup')" data-page="farm-setup">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#16a34a,#22d3ee)">🚜</div>
+                    <span data-i18n="nav.farmSetup">Farm Setup</span>
+                </button>
+                <button class="pic-nav-btn" onclick="oneTapAdvice()" id="one-tap-nav-btn">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">🧠</div>
+                    <span data-i18n="simple.getAdvice">Get Advice</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('weather')" data-page="weather">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4)">🌤️</div>
+                    <span data-i18n="nav.weather">Weather</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('pest-prediction')" data-page="pest-prediction">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">🐛</div>
+                    <span data-i18n="nav.pestPrediction">Pest Alert</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('community')" data-page="community">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">👥</div>
+                    <span data-i18n="nav.community">Community</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('soil-analysis')" data-page="soil-analysis">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#92400e,#d97706)">🔬</div>
+                    <span data-i18n="nav.soilAnalysis">Soil Check</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('crop-diagnosis')" data-page="crop-diagnosis">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#10b981,#34d399)">📸</div>
+                    <span data-i18n="nav.cropDiagnosis">Crop Photo</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('mandi-prices')" data-page="mandi-prices">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#f97316,#fb923c)">💰</div>
+                    <span data-i18n="nav.mandiPrices">Mandi Price</span>
+                </button>
+                <button class="pic-nav-btn" onclick="navigate('expense-tracker')" data-page="expense-tracker">
+                    <div class="pic-nav-icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)">📊</div>
+                    <span data-i18n="nav.expenseTracker">Money</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Language Selector (top-right floating) -->
+        <div class="lang-float" id="lang-float">
+            <button class="lang-float-btn" onclick="toggleLangMenu()"><i class="fas fa-globe"></i> <span id="lang-label">EN</span></button>
+            <div class="lang-float-menu" id="lang-menu">
+                <div class="lang-opt" onclick="changeLanguage('en')">🇬🇧 English</div>
+                <div class="lang-opt" onclick="changeLanguage('hi')">🇮🇳 हिंदी</div>
+                <div class="lang-opt" onclick="changeLanguage('kn')">🇮🇳 ಕನ್ನಡ</div>
+                <div class="lang-opt" onclick="changeLanguage('te')">🇮🇳 తెలుగు</div>
+                <div class="lang-opt" onclick="changeLanguage('ta')">🇮🇳 தமிழ்</div>
+                <div class="lang-opt" onclick="changeLanguage('ml')">🇮🇳 മലയാളം</div>
+                <div class="lang-opt" onclick="changeLanguage('bn')">🇮🇳 বাংলা</div>
+                <div class="lang-opt" onclick="changeLanguage('gu')">🇮🇳 ગુજરાતી</div>
+                <div class="lang-opt" onclick="changeLanguage('mr')">🇮🇳 मराठी</div>
+                <div class="lang-opt" onclick="changeLanguage('pa')">🇮🇳 ਪੰਜਾਬੀ</div>
+                <div class="lang-opt" onclick="changeLanguage('or')">🇮🇳 ଓଡ଼ିଆ</div>
+            </div>
+        </div>
+
+        <!-- ══════════════ PAGES ══════════════ -->
+
+        <!-- ===== DASHBOARD ===== -->
+        <section id="dashboard-page" class="page active">
+            <div class="page-pad">
+                <!-- ═══ ONE-TAP SMART ADVICE (Simple Mode) ═══ -->
+                <div class="one-tap-section simple-only" id="one-tap-section" style="display:none">
+                    <div class="one-tap-card">
+                        <div class="one-tap-illustration">
+                            <svg viewBox="0 0 120 120" width="100" height="100">
+                                <circle cx="60" cy="60" r="55" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
+                                <text x="60" y="50" text-anchor="middle" font-size="36">🌾</text>
+                                <text x="60" y="80" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="bold">AI</text>
+                                <circle cx="60" cy="60" r="55" fill="none" stroke="#16a34a" stroke-width="2" opacity="0.3">
+                                    <animate attributeName="r" values="50;58;50" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                            </svg>
+                        </div>
+                        <h2 class="one-tap-title" data-i18n="simple.oneTapTitle">🌾 Get My Farm Advice</h2>
+                        <p class="one-tap-desc" data-i18n="simple.oneTapDesc">One tap — we find your location, check weather, and tell you what to grow!</p>
+                        <button class="btn btn-primary btn-mega one-tap-btn" id="one-tap-btn" onclick="oneTapAdvice()">
+                            <i class="fas fa-magic"></i> <span data-i18n="simple.tapHere">Tap Here!</span>
+                        </button>
+                        <div class="one-tap-progress" id="one-tap-progress" style="display:none">
+                            <div class="otp-step" id="otp-step-1"><span class="otp-emoji">📍</span> <span data-i18n="simple.findingLocation">Finding your location...</span></div>
+                            <div class="otp-step" id="otp-step-2"><span class="otp-emoji">🌤️</span> <span data-i18n="simple.checkingWeather">Checking weather...</span></div>
+                            <div class="otp-step" id="otp-step-3"><span class="otp-emoji">🧠</span> <span data-i18n="simple.aiThinking">AI is thinking...</span></div>
+                            <div class="otp-step" id="otp-step-4"><span class="otp-emoji">🔊</span> <span data-i18n="simple.readingResult">Reading your advice...</span></div>
+                        </div>
+                        <div class="one-tap-result" id="one-tap-result" style="display:none"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ SIMPLE WEATHER DISPLAY (Simple Mode) ═══ -->
+                <div class="simple-weather simple-only" id="simple-weather" style="display:none">
+                    <div class="simple-weather-icon" id="simple-weather-icon">☀️</div>
+                    <div class="simple-weather-temp" id="simple-weather-temp">28°</div>
+                    <div class="simple-weather-status" id="simple-weather-status">
+                        <span class="traffic-light green" id="weather-traffic-light"></span>
+                        <span data-i18n="simple.goodWeather">Good weather for farming</span>
+                    </div>
+                </div>
+
+                <!-- Hero -->
+                <div class="dash-hero">
+                    <div class="dash-hero-bg"></div>
+                    <div class="dash-hero-content">
+                        <p class="dash-greeting" id="dash-greeting" data-i18n="dash.goodMorning">Good Morning,</p>
+                        <h1 class="dash-name" id="dash-name">Farmer 🌾</h1>
+                        <p class="dash-farm" id="dash-farm"></p>
+                        <div class="dash-weather-chips">
+                            <div class="weather-chip"><i class="fas fa-sun"></i> <span id="dash-temp">28°C</span></div>
+                            <div class="weather-chip"><i class="fas fa-tint"></i> <span id="dash-humidity">65%</span></div>
+                            <div class="weather-chip"><i class="fas fa-wind"></i> <span id="dash-wind">12 km/h</span></div>
+                        </div>
+                        <div class="dash-hero-badge">
+                            <span class="dhb-dot"></span>
+                            Powered by 4-Layer AgriSmart AI Engine &middot; 296K data points
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="stat-grid">
+                    <div class="stat-card stat-green">
+                        <i class="fas fa-map stat-icon"></i>
+                        <div class="stat-value" id="stat-farm-size">—</div>
+                        <div class="stat-label" data-i18n="dash.farmSize">Farm Size</div>
+                    </div>
+                    <div class="stat-card stat-blue">
+                        <i class="fas fa-leaf stat-icon"></i>
+                        <div class="stat-value" id="stat-sustain">—</div>
+                        <div class="stat-label" data-i18n="dash.sustainability">Sustainability</div>
+                    </div>
+                    <div class="stat-card stat-amber">
+                        <i class="fas fa-seedling stat-icon"></i>
+                        <div class="stat-value" id="stat-recs">0</div>
+                        <div class="stat-label" data-i18n="dash.recommendations">Recommendations</div>
+                    </div>
+                    <div class="stat-card stat-purple">
+                        <i class="fas fa-users stat-icon"></i>
+                        <div class="stat-value" id="stat-community">—</div>
+                        <div class="stat-label" data-i18n="dash.community">Community Posts</div>
+                    </div>
+                </div>
+
+                <!-- Live Weather & Crop Health Row -->
+                <div class="dash-live-row">
+                    <div class="card dash-weather-live">
+                        <h3 class="card-title"><i class="fas fa-cloud-sun"></i> Today's Weather</h3>
+                        <div class="dash-weather-big">
+                            <div class="weather-big-temp" id="dash-big-temp">28°</div>
+                            <div class="weather-big-desc" id="dash-big-desc">Partly Cloudy</div>
+                        </div>
+                        <div class="dash-weather-details">
+                            <div><i class="fas fa-tint"></i> Humidity: <strong id="dash-det-hum">65%</strong></div>
+                            <div><i class="fas fa-wind"></i> Wind: <strong id="dash-det-wind">12 km/h</strong></div>
+                            <div><i class="fas fa-cloud-rain"></i> Rain: <strong id="dash-det-rain">0 mm</strong></div>
+                        </div>
+                    </div>
+                    <div class="card dash-crop-health">
+                        <h3 class="card-title"><i class="fas fa-heartbeat"></i> Farm Health</h3>
+                        <div class="health-ring-wrap">
+                            <div class="health-ring" id="dash-health-ring">
+                                <svg viewBox="0 0 120 120"><defs><linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#0ea5e9"/></linearGradient></defs><circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="10"/><circle cx="60" cy="60" r="52" fill="none" stroke="url(#healthGrad)" stroke-width="10" stroke-dasharray="327" stroke-dashoffset="65" stroke-linecap="round" transform="rotate(-90 60 60)" id="health-arc"/></svg>
+                                <span class="health-ring-val" id="dash-health-score">80%</span>
+                            </div>
+                            <div class="health-labels">
+                                <div><span class="dot green"></span> Soil: Good</div>
+                                <div><span class="dot blue"></span> Water: OK</div>
+                                <div id="dash-pest-status"><span class="dot green"></span> Pest Risk: Low</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card mt-3">
+                    <h3 class="card-title"><i class="fas fa-clock"></i> Recent Activity</h3>
+                    <div id="dash-recent-activity" class="activity-feed">
+                        <div class="activity-item"><div class="activity-dot green"></div><span>Welcome! Set up your farm to get started.</span><small>Just now</small></div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <h2 class="section-title" data-i18n="dash.quickActions">Quick Actions</h2>
+                <div class="feature-cards">
+                    <div class="feature-card fc-green" onclick="navigate('farm-setup')">
+                        <div class="fc-icon"><i class="fas fa-tractor"></i></div>
+                        <div class="fc-text">
+                            <h3 data-i18n="dash.setupFarm">Set Up Farm</h3>
+                            <p data-i18n="dash.setupFarmDesc">Enter farm details for personalized AI advice</p>
+                        </div>
+                        <i class="fas fa-arrow-right fc-arrow"></i>
+                    </div>
+                    <div class="feature-card fc-green" onclick="navigate('recommendation')">
+                        <div class="fc-icon"><i class="fas fa-seedling"></i></div>
+                        <div class="fc-text">
+                            <h3 data-i18n="dash.aiRec">AI Recommendations</h3>
+                            <p data-i18n="dash.aiRecDesc">Get smart crop suggestions based on your farm</p>
+                        </div>
+                        <i class="fas fa-arrow-right fc-arrow"></i>
+                    </div>
+                    <div class="feature-card fc-blue" onclick="navigate('rotation')">
+                        <div class="fc-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="fc-text">
+                            <h3 data-i18n="dash.cropRotation">Crop Rotation Planner</h3>
+                            <p data-i18n="dash.cropRotationDesc">Plan seasonal rotations for better yields</p>
+                        </div>
+                        <i class="fas fa-arrow-right fc-arrow"></i>
+                    </div>
+                    <div class="feature-card fc-amber" onclick="navigate('fertilizer')">
+                        <div class="fc-icon"><i class="fas fa-flask"></i></div>
+                        <div class="fc-text">
+                            <h3 data-i18n="dash.fertCalc">Fertilizer Calculator</h3>
+                            <p data-i18n="dash.fertCalcDesc">Calculate optimal NPK requirements</p>
+                        </div>
+                        <i class="fas fa-arrow-right fc-arrow"></i>
+                    </div>
+                </div>
+
+                <!-- Explore More -->
+                <h2 class="section-title" data-i18n="dash.exploreMore">Explore More</h2>
+                <div class="explore-grid">
+                    <div class="explore-card" onclick="navigate('market')"><i class="fas fa-chart-line text-green"></i><span data-i18n="dash.marketForecast">Market Forecast</span></div>
+                    <div class="explore-card" onclick="navigate('community')"><i class="fas fa-users text-blue"></i><span data-i18n="dash.communityLabel">Community</span></div>
+                    <div class="explore-card" onclick="navigate('weather')"><i class="fas fa-cloud-sun text-cyan"></i><span data-i18n="dash.weatherLabel">Weather</span></div>
+                    <div class="explore-card" onclick="navigate('chatbot')"><i class="fas fa-robot text-purple"></i><span data-i18n="dash.aiChat">AI Chat</span></div>
+                    <div class="explore-card" onclick="navigate('sustainability')"><i class="fas fa-leaf text-green"></i><span data-i18n="dash.sustainLabel">Sustainability</span></div>
+                    <div class="explore-card" onclick="navigate('pest-prediction')"><i class="fas fa-bug text-red"></i><span data-i18n="dash.pestAlert">Pest Alert</span></div>
+                </div>
+
+                <!-- Usage Guide -->
+                <div class="usage-guide">
+                    <h2 class="section-title" data-i18n-html="dash.howToUse">📋 How to Use This App</h2>
+                    <div class="steps-row">
+                        <div class="step-card"><div class="step-num">1</div><h4 data-i18n="dash.step1Title">Detect Location</h4><p data-i18n="dash.step1Desc">Tap "Detect My Location" in Farm Setup — we get weather automatically</p></div>
+                        <div class="step-card"><div class="step-num">2</div><h4 data-i18n="dash.step2Title">Get AI Recommendations</h4><p data-i18n="dash.step2Desc">4 AI agents analyze your data for the best crops</p></div>
+                        <div class="step-card"><div class="step-num">3</div><h4 data-i18n="dash.step3Title">Plan Your Season</h4><p data-i18n="dash.step3Desc">Use rotation planner, fertilizer calc & market insights</p></div>
+                        <div class="step-card"><div class="step-num">4</div><h4 data-i18n="dash.step4Title">Track & Improve</h4><p data-i18n="dash.step4Desc">Log sustainability data and learn from community</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FARM SETUP ===== -->
+        <section id="farm-setup-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-tractor"></i></div>
+                    <div><h1 data-i18n="setup.title">Farm Setup</h1><p class="page-desc" data-i18n="setup.desc">Enter your farm details for personalized recommendations</p></div>
+                </div>
+
+                <!-- Guide -->
+                <div class="feature-guide" id="setup-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#16a34a,#22d3ee)">
+                        <i class="fas fa-tractor" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="guide-text">
+                            <strong>Easy 3 steps:</strong> 1️⃣ Tap "Detect My Location" — we get your weather automatically. 2️⃣ Enter your farm size & crop. 3️⃣ Tell us how much fertilizer you use. That's it!
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+
+                <!-- Location — Auto GPS -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> <span data-i18n="setup.locationSettings">Your Location</span></h3>
+                    <p class="card-desc" style="margin-bottom:1rem">We detect your location automatically to fetch weather & climate data.</p>
+                    <div id="gps-status" class="gps-status-box">
+                        <i class="fas fa-satellite-dish"></i> <span id="gps-status-text">Tap the button below to detect your location</span>
+                    </div>
+                    <button class="btn btn-primary btn-large" id="gps-detect-btn" onclick="detectMyLocation()" style="margin-top:0.75rem;width:100%">
+                        <i class="fas fa-crosshairs"></i> Detect My Location
+                    </button>
+                    <div id="gps-result" style="display:none;margin-top:1rem">
+                        <div class="gps-result-grid">
+                            <div class="gps-chip"><i class="fas fa-map-pin"></i> <span id="gps-place-name">—</span></div>
+                            <div class="gps-chip"><i class="fas fa-thermometer-half"></i> <span id="gps-temp">—</span></div>
+                            <div class="gps-chip"><i class="fas fa-tint"></i> <span id="gps-hum">—</span></div>
+                            <div class="gps-chip"><i class="fas fa-cloud-rain"></i> <span id="gps-rain">—</span></div>
+                        </div>
+                    </div>
+                    <!-- Hidden inputs for lat/lon -->
+                    <input type="hidden" id="user-lat" value="12.9716">
+                    <input type="hidden" id="user-lon" value="77.5946">
+                    <input type="hidden" id="city-name" value="">
+                </div>
+
+                <!-- Farm Details -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-seedling"></i> <span data-i18n="setup.farmDetails">Farm Details</span></h3>
+                    <div class="input-grid-3 advanced-only">
+                        <div class="form-group">
+                            <label>Farm Size</label>
+                            <div class="input-with-unit">
+                                <input type="number" id="land-size" value="8" min="0.1" max="500" step="0.1">
+                                <select id="land-unit" onchange="convertLandUnit()">
+                                    <option value="hectares">Hectares</option>
+                                    <option value="cents">Cents</option>
+                                    <option value="acres">Acres</option>
+                                </select>
+                            </div>
+                            <small id="land-converted"></small>
+                        </div>
+                        <div class="form-group">
+                            <label>Crop Preference</label>
+                            <select id="crop-preference">
+                                <option value="Grains">🌾 Grains (Wheat, Rice, Corn)</option>
+                                <option value="Vegetables">🥬 Vegetables (Tomato, Potato, Onion)</option>
+                                <option value="Fruits">🍎 Fruits (Banana)</option>
+                                <option value="Pulses">🫘 Pulses (Chickpea, Lentil, Soybean)</option>
+                                <option value="Cash Crops">🏭 Cash Crops (Cotton, Sugarcane, Tea)</option>
+                                <option value="Oilseeds">🌻 Oilseeds (Mustard, Sunflower, Sesame)</option>
+                                <option value="Spices">🟡 Spices (Turmeric)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Soil Type</label>
+                            <select id="soil-type">
+                                <option value="Loamy">Loamy (Best for most crops)</option>
+                                <option value="Sandy">Sandy</option>
+                                <option value="Clay">Clay</option>
+                                <option value="Black">Black / Cotton soil</option>
+                                <option value="Red">Red soil</option>
+                                <option value="Silty">Silty</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ═══ VISUAL CROP PICKER (Simple Mode) ═══ -->
+                    <div class="visual-crop-picker simple-only" id="visual-crop-picker" style="display:none">
+                        <h4 class="visual-picker-title" data-i18n="simple.whatToGrow">🌱 What do you want to grow?</h4>
+                        <p class="visual-picker-hint" data-i18n="simple.tapCrop">Tap a picture to choose:</p>
+                        <div class="visual-picker-grid">
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Rice', this)">
+                                <span class="vc-emoji">🌾</span>
+                                <span class="vc-name" data-i18n="crop.rice">Rice</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Wheat', this)">
+                                <span class="vc-emoji">🌾</span>
+                                <span class="vc-name" data-i18n="crop.wheat">Wheat</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Corn', this)">
+                                <span class="vc-emoji">🌽</span>
+                                <span class="vc-name" data-i18n="crop.corn">Corn</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Tomato', this)">
+                                <span class="vc-emoji">🍅</span>
+                                <span class="vc-name" data-i18n="crop.tomato">Tomato</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Potato', this)">
+                                <span class="vc-emoji">🥔</span>
+                                <span class="vc-name" data-i18n="crop.potato">Potato</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Cotton', this)">
+                                <span class="vc-emoji">🏵️</span>
+                                <span class="vc-name" data-i18n="crop.cotton">Cotton</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Sugarcane', this)">
+                                <span class="vc-emoji">🎋</span>
+                                <span class="vc-name" data-i18n="crop.sugarcane">Sugarcane</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Soybean', this)">
+                                <span class="vc-emoji">🫘</span>
+                                <span class="vc-name" data-i18n="crop.soybean">Soybean</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Chickpea', this)">
+                                <span class="vc-emoji">🫘</span>
+                                <span class="vc-name" data-i18n="crop.chickpea">Chickpea</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Sunflower', this)">
+                                <span class="vc-emoji">🌻</span>
+                                <span class="vc-name" data-i18n="crop.sunflower">Sunflower</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Mustard', this)">
+                                <span class="vc-emoji">🌻</span>
+                                <span class="vc-name" data-i18n="crop.mustard">Mustard</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Turmeric', this)">
+                                <span class="vc-emoji">🟡</span>
+                                <span class="vc-name" data-i18n="crop.turmeric">Turmeric</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Banana', this)">
+                                <span class="vc-emoji">🍌</span>
+                                <span class="vc-name" data-i18n="crop.banana">Banana</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Vegetables', this)">
+                                <span class="vc-emoji">🥬</span>
+                                <span class="vc-name" data-i18n="crop.vegetables">Vegetables</span>
+                            </button>
+                            <button class="visual-crop-btn" onclick="selectVisualCrop('Millet', this)">
+                                <span class="vc-emoji">🌾</span>
+                                <span class="vc-name" data-i18n="crop.millet">Millet</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ═══ VISUAL SOIL PICKER (Simple Mode) ═══ -->
+                    <div class="visual-soil-picker simple-only" id="visual-soil-picker" style="display:none">
+                        <h4 class="visual-picker-title" data-i18n="simple.soilType">🪨 What does your soil look like?</h4>
+                        <p class="visual-picker-hint" data-i18n="simple.tapSoil">Tap the closest match:</p>
+                        <div class="visual-soil-grid">
+                            <button class="visual-soil-btn" onclick="selectVisualSoil('Loamy', this)">
+                                <div class="vs-swatch" style="background:linear-gradient(135deg,#8B7355,#A0926B)"></div>
+                                <span class="vs-name" data-i18n="soil.loamy">Loamy</span>
+                                <span class="vs-desc">👍</span>
+                            </button>
+                            <button class="visual-soil-btn" onclick="selectVisualSoil('Sandy', this)">
+                                <div class="vs-swatch" style="background:linear-gradient(135deg,#C2B280,#D4C99E)"></div>
+                                <span class="vs-name" data-i18n="soil.sandy">Sandy</span>
+                                <span class="vs-desc">🏖️</span>
+                            </button>
+                            <button class="visual-soil-btn" onclick="selectVisualSoil('Clay', this)">
+                                <div class="vs-swatch" style="background:linear-gradient(135deg,#8B4513,#A0522D)"></div>
+                                <span class="vs-name" data-i18n="soil.clay">Clay</span>
+                                <span class="vs-desc">💧</span>
+                            </button>
+                            <button class="visual-soil-btn" onclick="selectVisualSoil('Black', this)">
+                                <div class="vs-swatch" style="background:linear-gradient(135deg,#3B3131,#4A4040)"></div>
+                                <span class="vs-name" data-i18n="soil.black">Black</span>
+                                <span class="vs-desc">🖤</span>
+                            </button>
+                            <button class="visual-soil-btn" onclick="selectVisualSoil('Red', this)">
+                                <div class="vs-swatch" style="background:linear-gradient(135deg,#A0522D,#CD6839)"></div>
+                                <span class="vs-name" data-i18n="soil.red">Red</span>
+                                <span class="vs-desc">❤️</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NPK — Farmer-Friendly -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-flask"></i> <span>Fertilizer You Use</span></h3>
+                    <p class="card-desc" style="margin-bottom:0.75rem">Tell us how much fertilizer you put on your field. Pick the closest option:</p>
+                    <div class="npk-simple-grid">
+                        <div class="npk-item">
+                            <label class="npk-label">🌿 <strong>Urea / Nitrogen</strong></label>
+                            <p class="npk-hint">Makes leaves green & crops grow tall</p>
+                            <div class="npk-emoji-row" id="npk-n-row">
+                                <button class="npk-btn selected" onclick="setNPK('n',0,this)" data-val="0">❌ None</button>
+                                <button class="npk-btn" onclick="setNPK('n',25,this)" data-val="25">🤏 Little</button>
+                                <button class="npk-btn" onclick="setNPK('n',50,this)" data-val="50">👍 Medium</button>
+                                <button class="npk-btn" onclick="setNPK('n',90,this)" data-val="90">💪 A Lot</button>
+                            </div>
+                        </div>
+                        <div class="npk-item">
+                            <label class="npk-label">🌸 <strong>DAP / Phosphorus</strong></label>
+                            <p class="npk-hint">Helps flowers, fruits & strong roots</p>
+                            <div class="npk-emoji-row" id="npk-p-row">
+                                <button class="npk-btn selected" onclick="setNPK('p',0,this)" data-val="0">❌ None</button>
+                                <button class="npk-btn" onclick="setNPK('p',20,this)" data-val="20">🤏 Little</button>
+                                <button class="npk-btn" onclick="setNPK('p',45,this)" data-val="45">👍 Medium</button>
+                                <button class="npk-btn" onclick="setNPK('p',80,this)" data-val="80">💪 A Lot</button>
+                            </div>
+                        </div>
+                        <div class="npk-item">
+                            <label class="npk-label">🥔 <strong>Potash / Potassium</strong></label>
+                            <p class="npk-hint">Makes crops strong & disease resistant</p>
+                            <div class="npk-emoji-row" id="npk-k-row">
+                                <button class="npk-btn selected" onclick="setNPK('k',0,this)" data-val="0">❌ None</button>
+                                <button class="npk-btn" onclick="setNPK('k',20,this)" data-val="20">🤏 Little</button>
+                                <button class="npk-btn" onclick="setNPK('k',40,this)" data-val="40">👍 Medium</button>
+                                <button class="npk-btn" onclick="setNPK('k',80,this)" data-val="80">💪 A Lot</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="nitrogen" value="0">
+                    <input type="hidden" id="phosphorus" value="0">
+                    <input type="hidden" id="potassium" value="0">
+                </div>
+
+                <!-- Auto-fetched Weather (read-only display) -->
+                <div class="card" id="auto-weather-card" style="display:none">
+                    <h3 class="card-title"><i class="fas fa-cloud-sun"></i> <span>Weather & Soil (Auto-detected)</span></h3>
+                    <p class="card-desc">These values were fetched automatically from your location. You can adjust if needed.</p>
+                    <div class="auto-param-grid">
+                        <div class="auto-param"><i class="fas fa-thermometer-half"></i><span class="auto-param-label">Temperature</span><span class="auto-param-val" id="auto-temp-val">25°C</span></div>
+                        <div class="auto-param"><i class="fas fa-tint"></i><span class="auto-param-label">Humidity</span><span class="auto-param-val" id="auto-hum-val">60%</span></div>
+                        <div class="auto-param"><i class="fas fa-cloud-rain"></i><span class="auto-param-label">Rainfall</span><span class="auto-param-val" id="auto-rain-val">500 mm</span></div>
+                        <div class="auto-param"><i class="fas fa-vial"></i><span class="auto-param-label">Soil pH</span><span class="auto-param-val" id="auto-ph-val">6.5</span></div>
+                    </div>
+                    <input type="hidden" id="temperature" value="25">
+                    <input type="hidden" id="humidity" value="60">
+                    <input type="hidden" id="rainfall" value="500">
+                    <input type="hidden" id="ph" value="6.5">
+                </div>
+
+                <button class="btn btn-primary btn-large" onclick="saveFarmSetup()"><i class="fas fa-save"></i> <span data-i18n="setup.saveFarm">Save Farm Details</span></button>
+            </div>
+        </section>
+
+        <!-- ===== AI RECOMMENDATIONS ===== -->
+        <section id="recommendation-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-seedling"></i></div>
+                    <div><h1 data-i18n="rec.title">AI Recommendations</h1><p class="page-desc" data-i18n="rec.desc">Smart crop suggestions based on your farm data</p></div>
+                    <button class="btn btn-outline btn-sm ml-auto" onclick="getRecommendation()"><i class="fas fa-sync-alt"></i> <span data-i18n="rec.regenerate">Regenerate</span></button>
+                </div>
+                <div class="feature-guide" id="rec-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">
+                        <i class="fas fa-brain" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-lightbulb"></i></div>
+                        <div class="guide-text">
+                            <strong>How it works:</strong> Our AI agents analyze your soil, weather, market prices & sustainability to recommend the best crops. Tap "Generate Now" and watch the agents discuss!
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="recommendation-results">
+                    <div class="empty-state">
+                        <i class="fas fa-seedling"></i>
+                        <h3 data-i18n="rec.noRec">No Recommendations Yet</h3>
+                        <p data-i18n="rec.noRecDesc">Set up your farm details first, then generate AI recommendations.</p>
+                        <button class="btn btn-primary" onclick="getRecommendation()"><i class="fas fa-brain"></i> <span data-i18n="rec.generateNow">Generate Now</span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== CROP ROTATION PLANNER ===== -->
+        <section id="rotation-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-blue"><i class="fas fa-calendar-alt"></i></div>
+                    <div><h1 data-i18n="rot.title">Crop Rotation Planner</h1><p class="page-desc" data-i18n="rot.desc">Plan sustainable rotations for better yields and soil health</p></div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-seedling"></i> <span data-i18n="rot.currentCrop">Current Crop</span></h3>
+                    <div class="form-group"><select id="current-crop"><option>Wheat</option><option>Corn</option><option>Rice</option><option>Soybean</option><option>Tomato</option><option>Cotton</option><option>Potato</option></select></div>
+                    <button class="btn btn-primary" onclick="generateRotationPlan()"><i class="fas fa-calendar-alt"></i> <span data-i18n="rot.generatePlan">Generate Rotation Plan</span></button>
+                </div>
+                <div id="rotation-results" class="results-area"></div>
+                <div id="rotation-voice-note" style="display:none;margin-top:1rem">
+                    <button class="btn btn-outline btn-voice-note" onclick="speakRotationPlan()">
+                        <i class="fas fa-volume-up"></i> <span data-i18n="rot.listenPlan">🔊 Listen to Rotation Plan</span>
+                    </button>
+                </div>
+                <div class="card mt-4"><h3 class="card-title"><i class="fas fa-calendar"></i> <span data-i18n="rot.timeline">Rotation Timeline</span></h3><div id="rotation-timeline-chart" class="chart-container"></div></div>
+            </div>
+        </section>
+
+        <!-- ===== FERTILIZER CALCULATOR ===== -->
+        <section id="fertilizer-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-amber"><i class="fas fa-flask"></i></div>
+                    <div><h1 data-i18n="fert.title">Fertilizer Calculator</h1><p class="page-desc" data-i18n="fert.desc">Calculate exact NPK requirements for your farm</p></div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-edit"></i> <span data-i18n="fert.farmDetails">Farm Details</span></h3>
+                    <div class="input-grid-3">
+                        <div class="form-group"><label>Soil Type</label><select id="fert-soil"><option>Loamy</option><option>Sandy</option><option>Clay</option></select></div>
+                        <div class="form-group"><label>Crop</label><select id="fert-crop"><option>Wheat</option><option>Corn</option><option>Rice</option><option>Tomatoes</option><option>Soybeans</option><option>Carrots</option></select></div>
+                        <div class="form-group"><label>Land Size (ha)</label><input type="number" id="fert-land" value="8" min="0.1" max="500"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="calculateFertilizer()"><i class="fas fa-calculator"></i> <span data-i18n="fert.calculate">Calculate</span></button>
+                </div>
+                <div id="fertilizer-results" class="results-area"></div>
+                <div class="card mt-4"><h3 class="card-title"><i class="fas fa-chart-bar"></i> <span data-i18n="fert.nutrientBreakdown">Nutrient Breakdown</span></h3><div id="fertilizer-chart" class="chart-container"></div></div>
+            </div>
+        </section>
+
+        <!-- ===== SUSTAINABILITY ===== -->
+        <section id="sustainability-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-chart-bar"></i></div>
+                    <div><h1 data-i18n="sust.title">Sustainability Tracker</h1><p class="page-desc" data-i18n="sust.desc">Monitor and improve your environmental impact</p></div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-clipboard-list"></i> <span data-i18n="sust.logPractices">Log Season Practices</span></h3>
+                    <div class="input-grid-3">
+                        <div class="form-group"><label>Water Usage (ML/ha)</label><input type="number" id="water-usage" value="2.0" step="0.1" min="0" max="10"><small>Recommended: ≤ 2.0 ML/ha</small></div>
+                        <div class="form-group"><label>Fertilizer (tons/ha)</label><input type="number" id="fertilizer-use" value="1.5" step="0.1" min="0" max="10"><small>Recommended: ≤ 1.5 tons/ha</small></div>
+                        <div class="form-group"><label>Crop Rotation?</label><select id="crop-rotation"><option value="yes">Yes, rotation practiced</option><option value="no">No rotation this season</option></select></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="logSustainability()"><i class="fas fa-save"></i> <span data-i18n="sust.logData">Log Data</span></button>
+                </div>
+                <div class="two-col mt-4">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-chart-area"></i> Score Over Time</h3>
+                        <div id="sustainability-trend-chart" class="chart-container"></div>
+                        <div id="sustainability-no-data" style="text-align:center;padding:2rem;color:#6b7280">
+                            <i class="fas fa-chart-line" style="font-size:2rem;color:#d1d5db;margin-bottom:0.5rem"></i>
+                            <p style="font-weight:600">No data yet</p>
+                            <p style="font-size:0.82rem">Log your first season's practices above to see your score trend over time</p>
+                        </div>
+                    </div>
+                    <div class="card" id="sustainability-tips">
+                        <h3 class="card-title"><i class="fas fa-lightbulb"></i> Improvement Tips</h3>
+                        <p class="muted-text">Log your data to get personalized sustainability tips.</p>
+                    </div>
+                </div>
+                <div class="card mt-4" id="sustainability-explanation">
+                    <h3 class="card-title"><i class="fas fa-info-circle"></i> Understanding Your Sustainability Score</h3>
+                    <div style="font-size:0.88rem;color:#374151;line-height:1.8">
+                        <p><strong>How the score is calculated:</strong></p>
+                        <ul style="padding-left:1.25rem;margin:0.5rem 0">
+                            <li><strong>Water Usage (40% weight):</strong> Lower water usage = higher score. Target: ≤ 2.0 ML/hectare. Using drip irrigation or rainwater harvesting can improve this.</li>
+                            <li><strong>Fertilizer Use (30% weight):</strong> Less chemical fertilizer = higher score. Target: ≤ 1.5 tons/hectare. Organic alternatives like vermicompost boost your score.</li>
+                            <li><strong>Crop Rotation (30% weight):</strong> Practicing rotation gives full marks. It prevents soil depletion and reduces pest buildup naturally.</li>
+                        </ul>
+                        <p style="margin-top:0.5rem"><strong>Score guide:</strong> 🟢 80-100 = Excellent | 🟡 60-79 = Good | 🟠 40-59 = Needs improvement | 🔴 0-39 = Critical</p>
+                        <button class="btn btn-outline" onclick="speakSustainabilityExplanation()" style="margin-top:0.75rem"><i class="fas fa-volume-up"></i> 🔊 Listen to explanation</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== COMMUNITY ===== -->
+        <section id="community-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-blue"><i class="fas fa-users"></i></div>
+                    <div><h1 data-i18n="comm.title">Community Insights</h1><p class="page-desc" data-i18n="comm.desc">Share data anonymously and learn from other farmers</p></div>
+                </div>
+                <div class="feature-guide" id="community-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">
+                        <i class="fas fa-users" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-hands-helping"></i></div>
+                        <div class="guide-text">
+                            <strong>Help & Learn:</strong> Share your crop yield & price data to help other farmers. See what works best in your region. All data stays anonymous!
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+                <!-- Share -->
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-share-alt"></i> Share Your Data (Anonymous)</h3>
+                    <p class="card-desc">Help fellow farmers by sharing your yield and price data.</p>
+                    <div class="input-grid-3">
+                        <div class="form-group"><label>Crop</label><select id="community-crop"><option>Rice</option><option>Wheat</option><option>Corn</option><option>Soybean</option><option>Tomato</option><option>Potato</option><option>Cotton</option></select></div>
+                        <div class="form-group"><label>Yield (tons/ha)</label><input type="number" id="community-yield" value="3.0" step="0.1" min="0"></div>
+                        <div class="form-group"><label>Market Price (₹/ton)</label><input type="number" id="community-price" value="20000" step="100" min="0"></div>
+                        <div class="form-group"><label>Region</label><select id="community-region"><option>North</option><option>South</option><option>East</option><option>West</option><option>Central</option></select></div>
+                        <div class="form-group"><label>Season</label><select id="community-season"><option>Kharif (Monsoon)</option><option>Rabi (Winter)</option><option>Zaid (Summer)</option><option>Year-round</option></select></div>
+                        <div class="form-group"><label>Practice</label><select id="community-practice"><option>Organic Farming</option><option>Drip Irrigation</option><option>Crop Rotation</option><option>Integrated Pest Mgmt</option><option>Conservation Tillage</option></select></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="shareCommunityData()"><i class="fas fa-paper-plane"></i> <span data-i18n="comm.shareBtn">Share Data</span></button>
+                </div>
+                <!-- My Posts -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-user-circle"></i> My Shared Posts</h3>
+                    <div id="my-community-posts"><p class="muted-text">Your shared data will appear here.</p></div>
+                </div>
+                <!-- Dashboard -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Regional Insights</h3>
+                    <div class="stat-grid cols-2">
+                        <div class="stat-card stat-green"><div class="stat-value">3.9</div><div class="stat-label">Avg Yield (t/ha)</div></div>
+                        <div class="stat-card stat-blue"><div class="stat-value">₹2,500</div><div class="stat-label">Avg Price (per quintal)</div></div>
+                    </div>
+                    <div id="community-chart" class="chart-container mt-3"></div>
+                </div>
+                <!-- Best Practices -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-award"></i> Top Practices from Farmers</h3>
+                    <div class="practice-list" id="practice-list">
+                        <div class="practice-item"><span class="practice-pct">78%</span><span>Neem-based pest control <small>South India</small></span></div>
+                        <div class="practice-item"><span class="practice-pct">65%</span><span>Mulching to retain moisture <small>West India</small></span></div>
+                        <div class="practice-item"><span class="practice-pct">52%</span><span>Vermicomposting <small>North India</small></span></div>
+                        <div class="practice-item"><span class="practice-pct">48%</span><span>Intercropping with legumes <small>Central India</small></span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== MARKET FORECAST ===== -->
+        <section id="market-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-chart-line"></i></div>
+                    <div><h1 data-i18n="mkt.title">Market Forecast</h1><p class="page-desc" data-i18n="mkt.desc">AI-powered price predictions and market insights</p></div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-cog"></i> <span data-i18n="mkt.forecastSettings">Forecast Settings</span></h3>
+                    <div class="input-row-2">
+                        <div class="form-group"><label>Crop</label><select id="market-crop"><option>Rice</option><option>Wheat</option><option>Corn</option><option>Soybean</option><option>Tomato</option><option>Cotton</option><option>Potato</option></select></div>
+                        <div class="form-group"><label>Period</label><select id="forecast-period"><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option></select></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateMarketForecast()"><i class="fas fa-chart-line"></i> <span data-i18n="mkt.generate">Generate Forecast</span></button>
+                </div>
+                <div class="two-col mt-4">
+                    <div class="card"><h3 class="card-title"><i class="fas fa-rupee-sign"></i> Price Forecast</h3><div id="market-price-chart" class="chart-container"></div></div>
+                    <div class="card" id="market-insights"><h3 class="card-title"><i class="fas fa-lightbulb"></i> Market Insights</h3><p class="muted-text">Generate a forecast to see insights and recommendations.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== AI CHATBOT ===== -->
+        <section id="chatbot-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-purple"><i class="fas fa-comment-dots"></i></div>
+                    <div><h1 data-i18n="chat.title">AI Farming Assistant</h1><p class="page-desc" data-i18n="chat.desc">Ask any farming question and get instant answers</p></div>
+                </div>
+                <div class="chat-container card">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="chat-msg ai"><div class="chat-avatar"><i class="fas fa-robot"></i></div><div class="chat-bubble" data-i18n="chat.welcome">Hello! I'm your AI farming assistant 🌾. Ask me about crops, soil, weather, pests, fertilizers, or any farming topic!</div></div>
+                    </div>
+                    <div class="chat-input-bar">
+                        <input type="text" id="chat-input" placeholder="Ask a farming question..." data-i18n-placeholder="chat.placeholder" onkeypress="if(event.key==='Enter')sendChatMessage()">
+                        <button class="voice-fill-btn" onclick="voiceFillField('chat-input')" title="Speak your question" style="position:relative;right:auto;width:38px;height:38px"><i class="fas fa-microphone"></i></button>
+                        <button class="btn btn-primary btn-icon-only" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== WEATHER ===== -->
+        <section id="weather-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-cyan"><i class="fas fa-cloud-sun"></i></div>
+                    <div><h1 data-i18n="weather.title">Weather Intelligence</h1><p class="page-desc" data-i18n="weather.desc">Real-time weather with agricultural risk assessments</p></div>
+                </div>
+                <div class="feature-guide" id="weather-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#38bdf8,#06b6d4)">
+                        <i class="fas fa-cloud-sun" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-cloud-sun-rain"></i></div>
+                        <div class="guide-text">
+                            <strong>Plan with weather:</strong> Get real-time weather forecasts and risk alerts for your location. Know the best time to plant, irrigate, or harvest.
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Location</h3>
+                    <div class="input-grid-3">
+                        <div class="form-group"><label>Latitude</label><input type="number" id="weather-lat" value="12.9716" step="0.0001"></div>
+                        <div class="form-group"><label>Longitude</label><input type="number" id="weather-lon" value="77.5946" step="0.0001"></div>
+                        <div class="form-group"><label>Crop Type</label><select id="weather-crop"><option>Grains</option><option>Vegetables</option><option>Fruits</option></select></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="getWeatherForecast()"><i class="fas fa-cloud-sun"></i> <span data-i18n="weather.getForecast">Get Forecast</span></button>
+                </div>
+                <div id="weather-results" class="results-area mt-4"></div>
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-chart-area"></i> 7-Day Forecast</h3>
+                    <div id="weather-forecast-chart" class="chart-container"></div>
+                    <div id="weather-simple-summary" style="display:none;margin-top:1rem;padding:1rem;background:#f0fdf4;border-radius:10px;border-left:4px solid #0ea5e9">
+                        <h4 style="font-size:0.9rem;font-weight:700;color:#0369a1;margin-bottom:0.5rem"><i class="fas fa-comments"></i> What This Means For You</h4>
+                        <div id="weather-explain-text" style="font-size:0.88rem;color:#374151;line-height:1.7"></div>
+                        <button class="btn btn-outline" onclick="speakWeatherExplanation()" style="margin-top:0.75rem"><i class="fas fa-volume-up"></i> 🔊 Listen</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SOIL ANALYSIS ===== -->
+        <section id="soil-analysis-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-earth"><i class="fas fa-microscope"></i></div>
+                    <div><h1 data-i18n="soil.title">Soil Analysis</h1><p class="page-desc" data-i18n="soil.desc">Upload a photo for AI analysis or select manually</p></div>
+                </div>
+                <div class="feature-guide" id="soil-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#92400e,#d97706)">
+                        <i class="fas fa-microscope" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="guide-text">
+                            <strong>How it works:</strong> Take a clear photo of your soil and upload it. Our AI will identify the soil type. Or simply pick your soil type manually below!
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="two-col">
+                    <div class="card">
+                        <h3 class="card-title" data-i18n="soil.uploadTitle">📸 Upload Soil Photo</h3>
+                        <div class="upload-zone" id="soil-upload-area" onclick="document.getElementById('soil-photo').click()">
+                            <i class="fas fa-camera"></i>
+                            <p data-i18n="soil.uploadDesc">Click or drag a soil photo here</p>
+                            <small data-i18n="soil.uploadHint">JPG, PNG — Clear close-up works best</small>
+                        </div>
+                        <input type="file" id="soil-photo" accept="image/*" style="display:none" onchange="previewSoilPhoto(this)">
+                        <div id="soil-preview" style="display:none;margin-top:1rem;text-align:center"></div>
+                        <button class="btn btn-primary mt-3" onclick="analyzeSoil()"><i class="fas fa-search"></i> <span data-i18n="soil.analyze">Analyze Soil</span></button>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title" data-i18n="soil.manualTitle">📝 Manual Selection</h3>
+                        <div class="soil-options">
+                            <div class="soil-opt" onclick="selectSoilType('Loamy')"><div class="soil-swatch" style="background:#8B7355"></div><h4>Loamy</h4><p>Best for most crops. Good drainage.</p></div>
+                            <div class="soil-opt" onclick="selectSoilType('Sandy')"><div class="soil-swatch" style="background:#C2B280"></div><h4>Sandy</h4><p>Drains fast. Good for root crops.</p></div>
+                            <div class="soil-opt" onclick="selectSoilType('Clay')"><div class="soil-swatch" style="background:#8B4513"></div><h4>Clay</h4><p>Holds water. Good for rice, wheat.</p></div>
+                            <div class="soil-opt" onclick="selectSoilType('Black')"><div class="soil-swatch" style="background:#3B3131"></div><h4>Black</h4><p>Rich in minerals. Best for cotton.</p></div>
+                            <div class="soil-opt" onclick="selectSoilType('Red')"><div class="soil-swatch" style="background:#A0522D"></div><h4>Red</h4><p>Iron-rich. Good for pulses.</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="soil-results" class="results-area mt-4"></div>
+            </div>
+        </section>
+
+        <!-- ===== PEST PREDICTION ===== -->
+        <section id="pest-prediction-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-red"><i class="fas fa-bug"></i></div>
+                    <div><h1 data-i18n="pest.title">Pest & Disease Prediction</h1><p class="page-desc" data-i18n="pest.desc">Real-time AI early-warning system using your location weather</p></div>
+                </div>
+                <!-- Guide tooltip -->
+                <div class="feature-guide" id="pest-guide">
+                    <div class="guide-anim-icon" style="background:linear-gradient(135deg,#ef4444,#f97316)">
+                        <i class="fas fa-shield-alt" style="font-size:1.8rem;color:white"></i>
+                    </div>
+                    <div class="guide-content">
+                        <div class="guide-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="guide-text">
+                            <strong>How it works:</strong> We use real-time weather from your location + your crop to predict pest risks using AI. Just select your crop and tap Analyze!
+                        </div>
+                    </div>
+                    <button class="guide-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-sliders-h"></i> Farm Conditions</h3>
+                    <p class="card-desc">Weather data is auto-filled from your farm location. Just select your crop!</p>
+                    <div class="input-grid-3">
+                        <div class="form-group"><label>Crop</label><select id="pest-crop"><option>Wheat</option><option>Rice</option><option>Corn</option><option>Tomato</option><option>Cotton</option><option>Soybean</option><option>Potato</option></select></div>
+                        <div class="form-group"><label>Soil Type</label><select id="pest-soil"><option>Loamy</option><option>Clay</option><option>Sandy</option><option>Silty</option><option>Black</option><option>Red</option></select></div>
+                        <div class="form-group"><label>Temperature °C <small>(auto)</small></label><input type="number" id="pest-temp" value="25" readonly style="opacity:0.7"></div>
+                        <div class="form-group"><label>Humidity % <small>(auto)</small></label><input type="number" id="pest-humidity" value="65" readonly style="opacity:0.7"></div>
+                        <div class="form-group"><label>Rainfall mm <small>(auto)</small></label><input type="number" id="pest-rainfall" value="500" readonly style="opacity:0.7"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="predictPests()"><i class="fas fa-shield-alt"></i> <span data-i18n="pest.analyze">Analyze Pest Risk</span></button>
+                </div>
+                <div id="pest-results" class="results-area mt-4"></div>
+            </div>
+        </section>
+
+        <!-- ===== HISTORY / PREVIOUS RECOMMENDATIONS ===== -->
+        <section id="history-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-history"></i></div>
+                    <div><h1 data-i18n="hist.title">My Recommendations</h1><p class="page-desc" data-i18n="hist.desc">View previous recommendations and farming history</p></div>
+                    <button class="btn btn-outline btn-sm ml-auto" onclick="exportRecommendations()"><i class="fas fa-download"></i> <span data-i18n="hist.export">Export CSV</span></button>
+                </div>
+                <div class="card" id="history-table-container">
+                    <p class="muted-text">No recommendations yet. Use AI Recommendations to get started!</p>
+                </div>
+                <div class="card mt-4"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Analytics</h3><div id="history-analytics-chart" class="chart-container"></div></div>
+            </div>
+        </section>
+
+        <!-- ===== OFFLINE MODE ===== -->
+        <section id="offline-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-purple"><i class="fas fa-cloud"></i></div>
+                    <div><h1 data-i18n="offline.title">Offline Mode</h1><p class="page-desc" data-i18n="offline.desc">Use the app without internet. Data syncs automatically.</p></div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title"><i class="fas fa-signal"></i> Connection Status</h3>
+                    <div class="status-box" id="offline-status-box">
+                        <i class="fas fa-wifi text-green"></i>
+                        <span>You are online — All features available</span>
+                    </div>
+                </div>
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-database"></i> Offline Data</h3>
+                    <p>When offline, recommendations use saved data. Unsynced entries upload when you reconnect.</p>
+                    <div class="info-rows mt-3">
+                        <div class="info-row"><span>Saved recommendations</span><strong id="offline-recs-count">0</strong></div>
+                        <div class="info-row"><span>Pending sync</span><strong id="offline-pending-count">0</strong></div>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="syncOfflineData()"><i class="fas fa-sync-alt"></i> <span data-i18n="offline.syncNow">Sync Now</span></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PROFILE / SETTINGS (3 tabs) ===== -->
+        <section id="profile-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-green"><i class="fas fa-cog"></i></div>
+                    <div><h1 data-i18n="profile.title">Profile & Settings</h1><p class="page-desc" data-i18n="profile.desc">Manage profile, view history, and configure app settings</p></div>
+                </div>
+
+                <div class="profile-tabs">
+                    <button class="ptab active" onclick="switchProfileTab('info')"><i class="fas fa-user"></i> <span data-i18n="profile.profileTab">Profile</span></button>
+                    <button class="ptab" onclick="switchProfileTab('farm-hist')"><i class="fas fa-chart-bar"></i> <span data-i18n="profile.farmHistTab">Farm History</span></button>
+                    <button class="ptab" onclick="switchProfileTab('settings')"><i class="fas fa-cog"></i> <span data-i18n="profile.settingsTab">Settings</span></button>
+                </div>
+
+                <!-- Profile Info -->
+                <div id="ptab-info" class="ptab-content active">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-user"></i> <span data-i18n="profile.personalInfo">Personal Information</span></h3>
+                        <div class="input-grid-2">
+                            <div class="form-group"><label>Farmer Name</label><input type="text" id="farmer-name" value=""></div>
+                            <div class="form-group"><label>Farm Name</label><input type="text" id="farm-name" value=""></div>
+                            <div class="form-group"><label>Phone</label><input type="tel" id="profile-phone" value=""></div>
+                            <div class="form-group"><label>Email (Optional)</label><input type="email" id="profile-email" value=""></div>
+                            <div class="form-group"><label>Location</label><input type="text" id="profile-location" value=""></div>
+                            <div class="form-group"><label>Experience Level</label><select id="experience-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Expert</option></select></div>
+                            <div class="form-group"><label>Farm Size (hectares)</label><input type="number" id="profile-farm-size" value="5"></div>
+                            <div class="form-group"><label>Region</label><select id="farm-region"><option>North</option><option>South</option><option>East</option><option>West</option><option>Central</option></select></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveProfile()"><i class="fas fa-save"></i> <span data-i18n="profile.saveProfile">Save Profile</span></button>
+                    </div>
+                </div>
+
+                <!-- Farming History -->
+                <div id="ptab-farm-hist" class="ptab-content">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Recent Recommendations</h3>
+                        <div id="profile-recent-recs"><p class="muted-text">No recommendations yet.</p></div>
+                    </div>
+                    <div class="card mt-4"><h3 class="card-title"><i class="fas fa-chart-line"></i> Sustainability Score History</h3><div id="profile-sustainability-chart" class="chart-container"></div></div>
+                </div>
+
+                <!-- Settings -->
+                <div id="ptab-settings" class="ptab-content">
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-language"></i> <span data-i18n="profile.langVoice">Language & Voice</span></h3>
+                        <div class="input-grid-2">
+                            <div class="form-group"><label>Preferred Language</label><select id="settings-language" onchange="changeLanguage(this.value)"><option value="en">English</option><option value="hi">Hindi</option><option value="kn">Kannada</option><option value="te">Telugu</option><option value="ta">Tamil</option><option value="ml">Malayalam</option><option value="bn">Bengali</option><option value="gu">Gujarati</option><option value="mr">Marathi</option><option value="pa">Punjabi</option><option value="or">Odia</option></select></div>
+                            <div class="form-group"><label>Voice Interface</label><select id="settings-voice"><option value="on">Enabled</option><option value="off">Disabled</option></select></div>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <h3 class="card-title"><i class="fas fa-bell"></i> <span data-i18n="profile.notifications">Notifications</span></h3>
+                        <div class="toggle-list">
+                            <label class="toggle-row"><span>Weather Alerts</span><input type="checkbox" id="notify-weather" checked><span class="toggle-switch"></span></label>
+                            <label class="toggle-row"><span>Pest Warnings</span><input type="checkbox" id="notify-pest"><span class="toggle-switch"></span></label>
+                            <label class="toggle-row"><span>Market Price Updates</span><input type="checkbox" id="notify-market"><span class="toggle-switch"></span></label>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <h3 class="card-title"><i class="fas fa-database"></i> <span data-i18n="profile.dataManagement">Data Management</span></h3>
+                        <div class="btn-row">
+                            <button class="btn btn-outline" onclick="exportProfileData()"><i class="fas fa-download"></i> Export Data (JSON)</button>
+                            <button class="btn btn-outline" onclick="exportRecommendations()"><i class="fas fa-file-csv"></i> Export Recommendations (CSV)</button>
+                        </div>
+                    </div>
+                    <div class="card mt-4">
+                        <h3 class="card-title"><i class="fas fa-sign-out-alt"></i> <span data-i18n="profile.account">Account</span></h3>
+                        <button class="btn btn-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-i18n="nav.logout">Logout</span></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ CROP PHOTO DIAGNOSIS PAGE ═══════════════ -->
+        <section id="crop-diagnosis-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-emerald"><i class="fas fa-camera"></i></div>
+                    <div><h1 data-i18n="diag.title">Crop Photo Diagnosis</h1><p class="page-desc" data-i18n="diag.desc">Snap a photo or describe symptoms — AI identifies diseases instantly</p></div>
+                </div>
+
+                <div class="card diagnosis-hero-card">
+                    <div class="diag-camera-zone" id="diag-camera-zone">
+                        <div class="diag-camera-placeholder" id="diag-placeholder">
+                            <div class="diag-cam-icon"><i class="fas fa-camera-retro"></i></div>
+                            <p>Take a photo of your crop</p>
+                            <div class="diag-cam-actions">
+                                <button class="btn btn-primary btn-lg" onclick="openCropCamera()"><i class="fas fa-camera"></i> Open Camera</button>
+                                <button class="btn btn-outline" onclick="document.getElementById('diag-file-input').click()"><i class="fas fa-image"></i> Upload Photo</button>
+                            </div>
+                            <input type="file" id="diag-file-input" accept="image/*" capture="environment" style="display:none" onchange="handleCropPhoto(event)">
+                        </div>
+                        <div class="diag-preview" id="diag-preview" style="display:none">
+                            <img id="diag-preview-img" src="" alt="Crop photo">
+                            <button class="diag-retake-btn" onclick="retakeCropPhoto()"><i class="fas fa-redo"></i> Retake</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-stethoscope"></i> Describe Symptoms</h3>
+                    <div class="input-grid-2">
+                        <div class="form-group">
+                            <label>Crop Type</label>
+                            <select id="diag-crop-type">
+                                <option value="">Select crop</option>
+                                <option>Rice</option><option>Wheat</option><option>Maize</option><option>Cotton</option>
+                                <option>Tomato</option><option>Potato</option><option>Onion</option><option>Soybean</option>
+                                <option>Sugarcane</option><option>Chili</option><option>Brinjal</option><option>Groundnut</option>
+                                <option>Mustard</option><option>Banana</option><option>Mango</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Affected Part</label>
+                            <select id="diag-affected-part">
+                                <option value="">Select part</option>
+                                <option>Leaves</option><option>Stem</option><option>Roots</option><option>Fruit</option><option>Flowers</option><option>Whole Plant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Symptom Description</label>
+                        <div class="input-wrap-lg">
+                            <textarea id="diag-symptoms" rows="3" placeholder="e.g. Yellow spots on leaves, wilting, brown patches..." style="width:100%;padding-right:3rem"></textarea>
+                            <button type="button" class="voice-fill-btn" onclick="voiceFillField('diag-symptoms')" title="Speak symptoms" style="top:12px"><i class="fas fa-microphone"></i></button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="runCropDiagnosis()"><i class="fas fa-search-plus"></i> Diagnose Now</button>
+                </div>
+
+                <div id="diag-result" class="mt-4" style="display:none"></div>
+
+                <!-- Diagnosis History -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-history"></i> Recent Diagnoses</h3>
+                    <div id="diag-history-list"><p class="muted-text">No diagnoses yet. Take a photo to get started!</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ GOVERNMENT SCHEME MATCHER PAGE ═══════════════ -->
+        <section id="govt-schemes-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-indigo"><i class="fas fa-landmark"></i></div>
+                    <div><h1 data-i18n="scheme.title">Government Scheme Matcher</h1><p class="page-desc" data-i18n="scheme.desc">Find eligible government subsidies, loans & insurance schemes for your farm</p></div>
+                </div>
+
+                <div class="scheme-search-card card">
+                    <h3 class="card-title"><i class="fas fa-search"></i> Find Your Schemes</h3>
+                    <div class="input-grid-2">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-marker-alt"></i> State / Location</label>
+                            <select id="scheme-state">
+                                <option value="">Select state</option>
+                                <option>Andhra Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+                                <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option>
+                                <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option>
+                                <option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Tamil Nadu</option>
+                                <option>Telangana</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-seedling"></i> Primary Crop</label>
+                            <div class="input-wrap-lg">
+                                <input type="text" id="scheme-crop" placeholder="e.g. Rice, Wheat, Cotton" class="input-lg">
+                                <button type="button" class="voice-fill-btn" onclick="voiceFillField('scheme-crop')" title="Speak crop name"><i class="fas fa-microphone"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-ruler-combined"></i> Land Size (acres)</label>
+                            <input type="number" id="scheme-land-size" placeholder="e.g. 5" min="0" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag"></i> Farmer Category</label>
+                            <select id="scheme-category">
+                                <option value="small">Small Farmer (< 2 ha)</option>
+                                <option value="marginal">Marginal Farmer (< 1 ha)</option>
+                                <option value="medium">Medium Farmer (2-10 ha)</option>
+                                <option value="large">Large Farmer (> 10 ha)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="findGovtSchemes()"><i class="fas fa-search"></i> Find Matching Schemes</button>
+                </div>
+
+                <div id="scheme-results" class="mt-4" style="display:none"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ MANDI PRICE ALERT PAGE ═══════════════ -->
+        <section id="mandi-prices-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-orange"><i class="fas fa-store"></i></div>
+                    <div><h1 data-i18n="mandi.title">Mandi Price Alerts</h1><p class="page-desc" data-i18n="mandi.desc">Real-time mandi prices with AI-powered sell/hold recommendations</p></div>
+                </div>
+
+                <div class="card mandi-search-card">
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Check Crop Prices</h3>
+                    <div class="mandi-quick-crops">
+                        <button class="mandi-crop-chip active" onclick="selectMandiCrop(this,'Rice')">🌾 Rice</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Wheat')">🌾 Wheat</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Cotton')">🏵️ Cotton</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Soybean')">🫘 Soybean</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Onion')">🧅 Onion</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Tomato')">🍅 Tomato</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Potato')">🥔 Potato</button>
+                        <button class="mandi-crop-chip" onclick="selectMandiCrop(this,'Maize')">🌽 Maize</button>
+                    </div>
+                    <div class="input-grid-2 mt-3">
+                        <div class="form-group">
+                            <label>Or enter crop name</label>
+                            <div class="input-wrap-lg">
+                                <input type="text" id="mandi-crop-input" placeholder="e.g. Mustard, Groundnut" value="Rice" class="input-lg">
+                                <button type="button" class="voice-fill-btn" onclick="voiceFillField('mandi-crop-input')" title="Speak crop name"><i class="fas fa-microphone"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>State (Optional)</label>
+                            <select id="mandi-state">
+                                <option value="">All India</option>
+                                <option>Maharashtra</option><option>Uttar Pradesh</option><option>Madhya Pradesh</option>
+                                <option>Rajasthan</option><option>Karnataka</option><option>Gujarat</option><option>Punjab</option>
+                                <option>Haryana</option><option>Tamil Nadu</option><option>Andhra Pradesh</option><option>Telangana</option>
+                                <option>West Bengal</option><option>Bihar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="checkMandiPrices()"><i class="fas fa-search-dollar"></i> Get Prices & Advice</button>
+                </div>
+
+                <div id="mandi-results" class="mt-4" style="display:none"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ VOICE NOTES PAGE ═══════════════ -->
+        <section id="voice-notes-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-purple"><i class="fas fa-microphone-alt"></i></div>
+                    <div><h1 data-i18n="vnotes.title">Farmer Voice Notes</h1><p class="page-desc" data-i18n="vnotes.desc">Share farming tips with your voice — help fellow farmers!</p></div>
+                </div>
+
+                <div class="card vnote-record-card">
+                    <h3 class="card-title"><i class="fas fa-plus-circle"></i> Share a Voice Tip</h3>
+                    <div class="vnote-recorder">
+                        <button class="vnote-mic-btn" id="vnote-mic-btn" onclick="toggleVoiceNoteRecording()">
+                            <i class="fas fa-microphone" id="vnote-mic-icon"></i>
+                        </button>
+                        <p class="vnote-mic-label" id="vnote-mic-label">Tap to record your farming tip</p>
+                        <div class="vnote-wave" id="vnote-wave" style="display:none">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <div class="vnote-transcript" id="vnote-transcript" style="display:none">
+                        <label>Your message:</label>
+                        <textarea id="vnote-text" rows="3" placeholder="Your voice note text will appear here..."></textarea>
+                    </div>
+                    <div class="input-grid-2 mt-3">
+                        <div class="form-group">
+                            <label>Related Crop (Optional)</label>
+                            <input type="text" id="vnote-crop" placeholder="e.g. Rice, Wheat">
+                        </div>
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select id="vnote-lang">
+                                <option value="en">English</option><option value="hi">Hindi</option><option value="kn">Kannada</option>
+                                <option value="te">Telugu</option><option value="ta">Tamil</option><option value="ml">Malayalam</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="shareVoiceNote()"><i class="fas fa-share"></i> Share with Community</button>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="vnote-filter-row">
+                        <h3 class="card-title"><i class="fas fa-headphones"></i> Community Tips</h3>
+                        <input type="text" class="vnote-filter" id="vnote-filter" placeholder="Filter by crop..." oninput="loadVoiceNotes(this.value)">
+                    </div>
+                    <div id="vnote-feed"><p class="muted-text">Loading community voice notes...</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════ EXPENSE & PROFIT TRACKER PAGE ═══════════════ -->
+        <section id="expense-tracker-page" class="page">
+            <div class="page-pad">
+                <div class="page-title-row">
+                    <div class="page-icon bg-teal"><i class="fas fa-wallet"></i></div>
+                    <div><h1 data-i18n="expense.title">Expense & Profit Tracker</h1><p class="page-desc" data-i18n="expense.desc">Track farm expenses, record sales, and monitor profitability</p></div>
+                </div>
+
+                <!-- Profit Summary Cards -->
+                <div class="expense-summary-grid" id="expense-summary">
+                    <div class="exp-sum-card income-card">
+                        <div class="exp-sum-icon"><i class="fas fa-arrow-down"></i></div>
+                        <div class="exp-sum-label">Total Income</div>
+                        <div class="exp-sum-value" id="exp-income">₹0</div>
+                    </div>
+                    <div class="exp-sum-card expense-card-sum">
+                        <div class="exp-sum-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="exp-sum-label">Total Expenses</div>
+                        <div class="exp-sum-value" id="exp-expense">₹0</div>
+                    </div>
+                    <div class="exp-sum-card profit-card">
+                        <div class="exp-sum-icon"><i class="fas fa-chart-pie"></i></div>
+                        <div class="exp-sum-label">Net Profit</div>
+                        <div class="exp-sum-value" id="exp-profit">₹0</div>
+                    </div>
+                </div>
+
+                <!-- Add Entry -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-plus-circle"></i> Add Entry</h3>
+                    <div class="exp-type-toggle">
+                        <button class="exp-type-btn active" id="exp-type-expense" onclick="setExpenseType('expense')"><i class="fas fa-minus-circle"></i> Expense</button>
+                        <button class="exp-type-btn" id="exp-type-income" onclick="setExpenseType('income')"><i class="fas fa-plus-circle"></i> Income / Sale</button>
+                    </div>
+                    <div class="input-grid-2 mt-3">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="exp-category">
+                                <option value="seeds">🌱 Seeds</option>
+                                <option value="fertilizer">💊 Fertilizer</option>
+                                <option value="pesticide">🧪 Pesticide</option>
+                                <option value="labor">👷 Labor</option>
+                                <option value="irrigation">💧 Irrigation</option>
+                                <option value="equipment">🔧 Equipment</option>
+                                <option value="transport">🚛 Transport</option>
+                                <option value="rent">🏡 Land Rent</option>
+                                <option value="sale">💰 Crop Sale</option>
+                                <option value="subsidy">🏛️ Govt Subsidy</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="exp-amount" placeholder="e.g. 5000" min="0">
+                        </div>
+                    </div>
+                    <div class="input-grid-2">
+                        <div class="form-group">
+                            <label>Description (Optional)</label>
+                            <div class="input-wrap-lg">
+                                <input type="text" id="exp-description" placeholder="e.g. DAP fertilizer 50kg" class="input-lg">
+                                <button type="button" class="voice-fill-btn" onclick="voiceFillField('exp-description')" title="Speak description"><i class="fas fa-microphone"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="exp-date">
+                        </div>
+                    </div>
+                    <div class="exp-voice-hint">
+                        <i class="fas fa-microphone"></i> Say "add expense 5000 for fertilizer" using voice assistant!
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="addExpenseEntry()"><i class="fas fa-save"></i> Save Entry</button>
+                </div>
+
+                <!-- Charts -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-chart-bar"></i> Spending Analysis</h3>
+                    <div id="expense-chart" class="chart-container"></div>
+                </div>
+
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> Monthly Income vs Expense</h3>
+                    <div id="expense-monthly-chart" class="chart-container"></div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="card mt-4 ai-insight-card">
+                    <h3 class="card-title"><i class="fas fa-robot"></i> AI Financial Insights</h3>
+                    <button class="btn btn-outline btn-sm mb-3" onclick="getExpenseInsights()"><i class="fas fa-magic"></i> Get AI Analysis</button>
+                    <div id="expense-ai-insights"><p class="muted-text">Add some expenses first, then get AI-powered financial advice!</p></div>
+                </div>
+
+                <!-- Recent Entries -->
+                <div class="card mt-4">
+                    <h3 class="card-title"><i class="fas fa-list"></i> Recent Entries</h3>
+                    <div id="expense-entries-list"><p class="muted-text">No entries yet. Start tracking your farm finances!</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer (inside main-area so it scrolls below content) -->
+        <footer class="app-footer" id="app-footer">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand">
+                        <div class="footer-logo"><i class="fas fa-leaf"></i></div>
+                        <span>AgriSmart AI</span>
+                    </div>
+                    <p class="footer-desc">Empowering farmers with AI-driven insights for sustainable and profitable agriculture.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <a onclick="navigate('dashboard')">Dashboard</a>
+                    <a onclick="navigate('recommendation')">AI Recommendations</a>
+                    <a onclick="navigate('weather')">Weather</a>
+                    <a onclick="navigate('market')">Market Prices</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Tools</h4>
+                    <a onclick="navigate('crop-diagnosis')">Crop Diagnosis</a>
+                    <a onclick="navigate('fertilizer')">Fertilizer Calculator</a>
+                    <a onclick="navigate('pest-prediction')">Pest Prediction</a>
+                    <a onclick="navigate('expense-tracker')">Expense Tracker</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <a onclick="navigate('chatbot')">AI Chat Support</a>
+                    <a onclick="navigate('community')">Community</a>
+                    <a href="#" onclick="event.preventDefault()">Help Center</a>
+                    <a href="#" onclick="event.preventDefault()">Privacy Policy</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 AgriSmart AI. All rights reserved.</p>
+                <div class="footer-socials">
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://github.com/BChaitanyaReddy895/Agentic-AI-for-Sustainable-Farming" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </footer>
+
+    </div><!-- /main-area -->
+
+    <!-- ──── MOBILE BOTTOM NAV ──── -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="mob-item" onclick="openMobileMenu()"><i class="fas fa-bars"></i><span data-i18n="mob.menu">Menu</span></button>
+        <button class="mob-item active" data-page="dashboard" onclick="navigate('dashboard')"><i class="fas fa-home"></i><span data-i18n="mob.home">Home</span></button>
+        <button class="mob-item" data-page="recommendation" onclick="navigate('recommendation')"><i class="fas fa-seedling"></i><span data-i18n="mob.ai">AI</span></button>
+        <button class="mob-item" data-page="chatbot" onclick="navigate('chatbot')"><i class="fas fa-comment-dots"></i><span data-i18n="mob.chat">Chat</span></button>
+        <button class="mob-item" data-page="profile" onclick="navigate('profile')"><i class="fas fa-user"></i><span data-i18n="mob.profile">Profile</span></button>
+    </nav>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+</div><!-- /app-shell -->
+
+<!-- ═══════════════ LOADING OVERLAY ═══════════════ -->
+<div class="loading-overlay" id="loading-overlay" style="display:none">
+    <div class="loading-box">
+        <div class="loading-spinner"></div>
+        <h3 data-i18n="loading.processing">Processing...</h3>
+        <p id="loading-message" data-i18n="loading.aiAnalyzing">AI agents are analyzing your data</p>
+    </div>
+</div>
+
+<!-- ═══════════════ NOTIFICATION TOAST ═══════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════ EMERGENCY PEST HELP (Simple Mode) ═══════════════ -->
+<div class="emergency-pest-btn simple-only" id="emergency-pest-btn" style="display:none">
+    <div class="epb-pulse"></div>
+    <span class="epb-icon">🆘</span>
+    <span class="epb-text" data-i18n="simple.cropDying">My Crop is Sick!</span>
+</div>
+
+<!-- ═══════════════ EMERGENCY PEST MODAL ═══════════════ -->
+<div class="emergency-modal" id="emergency-modal" style="display:none">
+    <div class="emergency-modal-backdrop" onclick="closeEmergencyModal()"></div>
+    <div class="emergency-modal-card">
+        <h2><span style="font-size:2rem">🆘</span> <span data-i18n="simple.emergencyTitle">Which crop needs help?</span></h2>
+        <p data-i18n="simple.emergencyDesc">Tap your crop — we'll check for pest danger!</p>
+        <div class="emergency-crop-grid">
+            <button class="em-crop-btn" onclick="runEmergencyPest('Wheat')"><span>🌾</span>Wheat</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Rice')"><span>🌾</span>Rice</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Corn')"><span>🌽</span>Corn</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Tomato')"><span>🍅</span>Tomato</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Cotton')"><span>🏵️</span>Cotton</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Potato')"><span>🥔</span>Potato</button>
+            <button class="em-crop-btn" onclick="runEmergencyPest('Soybean')"><span>🫘</span>Soybean</button>
+        </div>
+        <div class="emergency-result" id="emergency-result" style="display:none"></div>
+        <button class="btn btn-outline" style="margin-top:1rem;width:100%" onclick="closeEmergencyModal()">✕ Close</button>
+    </div>
+</div>
+
+<!-- ═══════════════ VOICE ASSISTANT ═══════════════ -->
+<button class="voice-fab" id="voice-btn" title="Voice Assistant" onclick="toggleVoicePanel()"><i class="fas fa-microphone" id="voice-btn-icon"></i></button>
+
+<!-- Voice Assistant Panel -->
+<div class="voice-panel" id="voice-panel" style="display:none">
+    <div class="voice-panel-backdrop" onclick="closeVoicePanel()"></div>
+    <div class="voice-panel-card">
+        <!-- Header -->
+        <div class="vp-header">
+            <div class="vp-title"><i class="fas fa-robot"></i> <span data-i18n="voice.title">Voice Assistant</span></div>
+            <button class="vp-close" onclick="closeVoicePanel()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- State Indicator -->
+        <div class="vp-state" id="vp-state">
+            <div class="vp-state-icon" id="vp-state-icon">
+                <i class="fas fa-microphone"></i>
+            </div>
+            <div class="vp-state-text" id="vp-state-text">Tap the mic to speak</div>
+            <!-- Sound wave animation -->
+            <div class="vp-wave" id="vp-wave" style="display:none">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Big Mic Button -->
+        <button class="vp-mic-btn" id="vp-mic-btn" onclick="toggleVoiceListening()">
+            <i class="fas fa-microphone" id="vp-mic-icon"></i>
+        </button>
+
+        <!-- Transcript -->
+        <div class="vp-transcript" id="vp-transcript" style="display:none">
+            <div class="vp-transcript-label">You said:</div>
+            <div class="vp-transcript-text" id="vp-transcript-text"></div>
+        </div>
+
+        <!-- Response -->
+        <div class="vp-response" id="vp-response" style="display:none">
+            <div class="vp-response-label"><i class="fas fa-robot"></i> AI Response:</div>
+            <div class="vp-response-text" id="vp-response-text"></div>
+            <button class="vp-replay-btn" onclick="replayVoiceResponse()"><i class="fas fa-volume-up"></i> Listen Again</button>
+        </div>
+
+        <!-- Quick Commands -->
+        <div class="vp-commands">
+            <div class="vp-commands-label">Try saying:</div>
+            <div class="vp-chips">
+                <button class="vp-chip" onclick="voiceQuickCommand('weather')">🌤️ Weather</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('recommend crop')">🌾 Crop Advice</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('pest problem')">🐛 Pest Help</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('fertilizer')">💊 Fertilizer</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('market price')">📈 Prices</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('crop diagnosis')">📸 Diagnose</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('government scheme')">🏛️ Schemes</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('expense')">💰 Expense</button>
+                <button class="vp-chip" onclick="voiceQuickCommand('help')">❓ Help</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ WALKTHROUGH OVERLAY ═══════════════ -->
+<div class="walkthrough-overlay" id="walkthrough-overlay" style="display:none">
+    <div class="walkthrough-backdrop" onclick="closeWalkthrough()"></div>
+    <div class="walkthrough-card" id="walkthrough-card">
+        <div class="walkthrough-progress">
+            <div class="walkthrough-progress-bar" id="walkthrough-progress-bar"></div>
+        </div>
+        <div class="walkthrough-illustration" id="walkthrough-illustration">
+            <!-- Animated SVG illustrations inserted by JS -->
+        </div>
+        <h2 class="walkthrough-title" id="walkthrough-title"></h2>
+        <p class="walkthrough-desc" id="walkthrough-desc"></p>
+        <div class="walkthrough-actions">
+            <button class="btn btn-outline btn-sm" id="walkthrough-skip" onclick="closeWalkthrough()">Skip</button>
+            <div class="walkthrough-dots" id="walkthrough-dots"></div>
+            <button class="btn btn-primary btn-sm wt-next-btn" id="walkthrough-next" onclick="nextWalkthroughStep()">Next →</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="config.js"></script>
+<script src="translations.js"></script>
+<script src="app.js"></script>
+<script src="voice-interface.js"></script>
+<script src="offline-data.js"></script>
+
+</body>
+</html>

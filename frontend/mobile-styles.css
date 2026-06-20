@@ -1,0 +1,383 @@
+/* Mobile First Styles for AgriSmart AI */
+/* Overrides styles_modern.css for mobile devices */
+
+/* --- Mobile Header (Hidden on Desktop) --- */
+.mobile-header {
+    display: none;
+}
+
+/* --- Mobile Bottom Nav (Hidden on Desktop) --- */
+.mobile-nav {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    
+    /* --- Global Reset & Layout --- */
+    :root {
+        --mobile-bg: #f8fafc;
+        --mobile-card: #ffffff;
+        --mobile-text: #1e293b;
+        --mobile-primary: #22c55e;
+        --safe-area-bottom: env(safe-area-inset-bottom);
+    }
+
+    body {
+        padding-bottom: calc(80px + var(--safe-area-bottom)); /* Space for bottom nav */
+        background-color: var(--mobile-bg);
+        overflow-x: hidden;
+    }
+
+    .container, .nav-container {
+        padding: 0 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* --- Hide Desktop Elements --- */
+    .modern-header, 
+    .language-selector,
+    .desktop-nav,
+    .particles-bg {
+        display: none !important;
+    }
+
+    /* --- Mobile Header --- */
+    .mobile-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        height: 60px;
+    }
+
+    .mobile-logo {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--mobile-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .mobile-profile-btn {
+        background: none;
+        border: none;
+        color: #64748b;
+        font-size: 20px;
+        padding: 8px;
+    }
+
+    /* --- Hero Section --- */
+    .hero-section {
+        min-height: auto !important;
+        padding-top: 20px !important;
+    }
+
+    .hero-content {
+        padding: 0 !important;
+        text-align: left !important;
+    }
+
+    .hero-title {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+        margin-bottom: 8px !important;
+    }
+
+    .hero-subtitle {
+        font-size: 16px !important;
+        margin-bottom: 24px !important;
+    }
+
+    /* --- Feature Cards & Grid --- */
+    .features-grid, .stats-grid, .recommendation-grid, .agents-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        display: grid !important;
+        width: 100% !important;
+    }
+
+    .feature-card, .stat-card, .agent-card {
+        padding: 20px !important;
+        border-radius: 16px !important;
+        background: white !important;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05) !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* --- Recommendation Section (Specific Fixes) --- */
+    #recommendation-results, #recommendation-result {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+
+    .modern-results-container {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .recommendation-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        width: 100% !important;
+    }
+
+    .recommendation-header {
+        display: flex;
+        flex-direction: row; 
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 12px;
+    }
+
+    .rec-score-circle {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        border-radius: 50%;
+        background: var(--mobile-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+    }
+
+    .chart-container {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 300px;
+        margin-top: 20px;
+        overflow-x: hidden;
+    }
+
+    /* --- Forms --- */
+    .form-group {
+        margin-bottom: 16px !important;
+    }
+
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom */
+        padding: 12px 16px !important;
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        width: 100% !important;
+        min-height: 48px; /* Touch target */
+    }
+
+    button {
+        padding: 14px !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        width: 100% !important;
+        min-height: 48px;
+    }
+
+    /* --- Mobile Bottom Navigation --- */
+    .mobile-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        height: calc(64px + var(--safe-area-bottom));
+        padding-bottom: var(--safe-area-bottom);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        z-index: 1001;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .mobile-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 11px;
+        height: 100%;
+    }
+
+    .mobile-nav-item i {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+
+    .mobile-nav-item.active {
+        color: var(--mobile-primary);
+    }
+
+    .mobile-mic-fab {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--mobile-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+        transform: translateY(-24px);
+        transition: transform 0.2s;
+        border: none;
+    }
+    
+    .mobile-mic-fab:active {
+        transform: translateY(-22px) scale(0.95);
+    }
+
+    /* --- Modals --- */
+    .auth-modal {
+        align-items: flex-end !important; /* Bottom sheet style */
+        padding: 0 !important;
+    }
+
+    .auth-container {
+        border-radius: 24px 24px 0 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 24px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .welcome-modal {
+        padding: 16px !important;
+        align-items: center !important;
+    }
+    
+    .welcome-content {
+        width: 100% !important;
+        padding: 24px !important;
+        text-align: center;
+        border-radius: 24px !important;
+    }
+
+    /* --- Specific Adjustments for Recommendations --- */
+    .result-section {
+        margin-top: 24px;
+        padding: 0 !important;
+    }
+
+    /* Ensure chart fits */
+    .js-plotly-plot, .plot-container {
+        width: 100% !important;
+    }
+    
+    /* Weather Widget */
+    .weather-widget {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .weather-current {
+        flex-direction: row;
+        gap: 16px;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    /* --- Visual Score Bars (recommendation) --- */
+    .score-bar-row {
+        flex-wrap: nowrap !important;
+    }
+    .score-bar-row span:nth-child(2) {
+        width: 70px !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* --- Agent Discussion Panel --- */
+    .agent-discussion > div {
+        flex-direction: column !important;
+    }
+    .agent-discussion > div > div:first-child {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+    }
+
+    /* --- Recommendation Charts Grid --- */
+    .rec-charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* --- Rec Hero --- */
+    .rec-hero {
+        padding: 1rem !important;
+    }
+    .rec-hero > div {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+
+    /* --- Agent Results Grid --- */
+    .agent-results-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* --- Info Grid (key factors / warnings) --- */
+    .rec-info-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* --- GPS & Farm Setup Mobile --- */
+    .gps-result-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    .npk-emoji-row {
+        flex-wrap: wrap !important;
+    }
+    .npk-btn {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    .npk-simple-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .auto-param-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Dashboard live row */
+    .dash-live-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Feature guides */
+    .feature-guide {
+        flex-direction: column !important;
+    }
+    .feature-guide .guide-icon {
+        display: none !important;
+    }
+
+    /* My posts */
+    .my-post-details {
+        flex-wrap: wrap !important;
+    }
+}
+/* Removed: Migrated to farm-growth-hub */

@@ -1,0 +1,20 @@
+# FastAPI - Web framework (REQUIRED)
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Core utilities (REQUIRED)
+requests==2.31.0
+python-dotenv==1.0.0
+Pillow==10.4.0
+
+# Dynamic Translation
+deep-translator==1.11.4
+
+# LLM-powered agents use Google Gemini via REST API (requests).
+# No additional SDK needed — all 5 agents call Gemini through models/llm_config.py.
+
+# Optional: Uncomment below only for dataset scripts or retrain_models.py:
+# pandas==2.1.4
+# numpy==1.24.3
+# scikit-learn==1.3.2

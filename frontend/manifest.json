@@ -1,0 +1,59 @@
+{
+    "name": "AgriSmart AI - Smart Farming Assistant",
+    "short_name": "AgriSmart",
+    "description": "AI-powered farming assistant with voice support, offline capabilities, and multilingual interface for Indian farmers",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#22c55e",
+    "orientation": "portrait-primary",
+    "scope": "./",
+    "lang": "en-IN",
+    "dir": "ltr",
+    "categories": ["agriculture", "productivity", "utilities"],
+    "icons": [
+        {
+            "src": "./icons/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "./icons/icon.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        },
+        {
+            "src": "./icons/icon.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Voice Assistant",
+            "short_name": "Voice",
+            "description": "Start voice command",
+            "url": "./index.html?action=voice",
+            "icons": [{ "src": "./icons/icon.svg", "sizes": "96x96" }]
+        },
+        {
+            "name": "Weather",
+            "short_name": "Weather",
+            "description": "Check weather forecast",
+            "url": "./index.html?page=weather",
+            "icons": [{ "src": "./icons/icon.svg", "sizes": "96x96" }]
+        },
+        {
+            "name": "Crop Advice",
+            "short_name": "Crops",
+            "description": "Get crop recommendations",
+            "url": "./index.html?page=recommendation",
+            "icons": [{ "src": "./icons/icon.svg", "sizes": "96x96" }]
+        }
+    ],
+    "prefer_related_applications": false
+}
+// Removed: Migrated to farm-growth-hub

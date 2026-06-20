@@ -1,0 +1,844 @@
+/* AgriSmart AI - Voice Interface & Farmer-Friendly Styles */
+/* Production-ready CSS for offline PWA with voice support */
+
+/* ==================== VOICE INTERFACE ==================== */
+
+/* Floating Voice Button - Always visible */
+.voice-fab {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border: none;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    animation: pulse-green 2s infinite;
+}
+
+.voice-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.5);
+}
+
+.voice-fab:active {
+    transform: scale(0.95);
+}
+
+.voice-fab i {
+    font-size: 28px;
+    color: white;
+}
+
+.voice-fab.listening {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    animation: pulse-red 1s infinite;
+}
+
+.voice-fab.listening i {
+    animation: mic-pulse 0.5s infinite alternate;
+}
+
+.voice-fab.speaking {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 8px 48px rgba(34, 197, 94, 0.6); }
+}
+
+@keyframes pulse-red {
+    0%, 100% { box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5); }
+    50% { box-shadow: 0 8px 48px rgba(239, 68, 68, 0.8); }
+}
+
+@keyframes mic-pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
+
+/* Voice Indicator Panel */
+.voice-indicator-panel {
+    position: fixed;
+    bottom: 180px;
+    right: 20px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    z-index: 9998;
+    display: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.voice-indicator-panel.active {
+    display: block;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.voice-indicator-panel h4 {
+    color: #22c55e;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.voice-transcript {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 60px;
+    color: #e5e7eb;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.voice-transcript.interim {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.voice-transcript.final {
+    color: #22c55e;
+}
+
+.voice-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.voice-status.listening {
+    color: #ef4444;
+}
+
+.voice-status.speaking {
+    color: #3b82f6;
+}
+
+/* Sound Wave Animation */
+.sound-wave {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 30px;
+}
+
+.sound-wave .bar {
+    width: 4px;
+    background: #22c55e;
+    border-radius: 2px;
+    animation: wave 0.5s ease infinite;
+}
+
+.sound-wave .bar:nth-child(1) { animation-delay: 0s; height: 10px; }
+.sound-wave .bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.sound-wave .bar:nth-child(3) { animation-delay: 0.2s; height: 15px; }
+.sound-wave .bar:nth-child(4) { animation-delay: 0.3s; height: 25px; }
+.sound-wave .bar:nth-child(5) { animation-delay: 0.4s; height: 12px; }
+
+@keyframes wave {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.5); }
+}
+
+/* ==================== VISUAL ICON NAVIGATION ==================== */
+/* For farmers who cannot read */
+
+.visual-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.98) 30%);
+    padding: 15px 10px 25px;
+    z-index: 9990;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+}
+
+.visual-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 10px;
+    border-radius: 16px;
+    min-width: 70px;
+}
+
+.visual-nav-item:hover,
+.visual-nav-item:active {
+    transform: scale(1.1);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.visual-nav-item.active {
+    background: rgba(34, 197, 94, 0.2);
+}
+
+.visual-nav-item .nav-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+}
+
+.visual-nav-item.active .nav-icon {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-color: #22c55e;
+}
+
+.visual-nav-item .nav-label {
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.visual-nav-item.active .nav-label {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+/* Individual nav icon colors */
+.nav-home .nav-icon { color: #22c55e; }
+.nav-crop .nav-icon { color: #f59e0b; }
+.nav-weather .nav-icon { color: #3b82f6; }
+.nav-pest .nav-icon { color: #ef4444; }
+.nav-market .nav-icon { color: #8b5cf6; }
+
+/* ==================== VOICE COMMANDS QUICK PANEL ==================== */
+
+.voice-commands-panel {
+    position: fixed;
+    bottom: 100px;
+    left: 20px;
+    right: 100px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 20px;
+    z-index: 9997;
+    display: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.voice-commands-panel.active {
+    display: block;
+    animation: slideUp 0.3s ease;
+}
+
+.voice-commands-panel h4 {
+    color: #22c55e;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.command-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.command-chip {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #22c55e;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.command-chip:hover {
+    background: rgba(34, 197, 94, 0.2);
+    transform: scale(1.05);
+}
+
+.command-chip i {
+    font-size: 16px;
+}
+
+/* ==================== CROP VISUAL SELECTOR ==================== */
+/* Picture-based crop selection for illiterate farmers */
+
+.crop-visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.crop-visual-item {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+    border-radius: 16px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.crop-visual-item:hover {
+    transform: translateY(-5px);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.crop-visual-item.selected {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.crop-visual-item .crop-emoji {
+    font-size: 48px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.crop-visual-item .crop-name {
+    font-size: 14px;
+    color: #e5e7eb;
+    font-weight: 500;
+}
+
+.crop-visual-item .crop-name-local {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* ==================== WEATHER VISUAL DISPLAY ==================== */
+
+.weather-visual {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.weather-day-card {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+}
+
+.weather-day-card .day-name {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.weather-day-card .weather-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.weather-day-card .temp {
+    font-size: 24px;
+    font-weight: 700;
+    color: #e5e7eb;
+}
+
+.weather-day-card .temp-range {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ==================== SIMPLE SLIDER INPUTS ==================== */
+/* Easy touch-based inputs for farmers */
+
+.simple-slider-group {
+    margin: 20px 0;
+}
+
+.simple-slider-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.simple-slider-label .label-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #e5e7eb;
+}
+
+.simple-slider-label .label-icon {
+    font-size: 24px;
+}
+
+.simple-slider-label .label-value {
+    background: rgba(34, 197, 94, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: #22c55e;
+}
+
+.simple-slider {
+    width: 100%;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.simple-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+}
+
+.simple-slider::-moz-range-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    cursor: pointer;
+    border: none;
+}
+
+/* ==================== BIG TOUCH BUTTONS ==================== */
+
+.big-action-btn {
+    width: 100%;
+    padding: 20px 30px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    transition: all 0.3s;
+    margin: 15px 0;
+}
+
+.big-action-btn.primary {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    box-shadow: 0 8px 30px rgba(34, 197, 94, 0.3);
+}
+
+.big-action-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.4);
+}
+
+.big-action-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.big-action-btn i {
+    font-size: 24px;
+}
+
+/* ==================== RESULT CARDS WITH ICONS ==================== */
+
+.result-visual-card {
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.02) 100%);
+    border: 2px solid rgba(34, 197, 94, 0.3);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 15px 0;
+}
+
+.result-visual-card .result-icon {
+    font-size: 60px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.result-visual-card .result-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #22c55e;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.result-visual-card .result-subtitle {
+    font-size: 16px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+/* ==================== OFFLINE INDICATOR ==================== */
+
+.offline-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: 600;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.offline-banner.show {
+    display: flex;
+}
+
+.offline-banner i {
+    animation: pulse 1s infinite;
+}
+
+/* Online indicator */
+.online-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    font-weight: 600;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.online-banner.show {
+    display: flex;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+
+/* ==================== INSTALL APP PROMPT ==================== */
+
+.install-prompt {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+    z-index: 99998;
+    display: none;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.install-prompt.show {
+    display: block;
+    animation: slideUp 0.3s ease;
+}
+
+.install-prompt-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.install-prompt-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+}
+
+.install-prompt-text h4 {
+    color: #e5e7eb;
+    margin-bottom: 5px;
+}
+
+.install-prompt-text p {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.install-prompt-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.install-prompt-actions .btn-install {
+    flex: 1;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.install-prompt-actions .btn-later {
+    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+/* ==================== WELCOME OVERLAY ==================== */
+
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+}
+
+.welcome-overlay.hidden {
+    display: none;
+}
+
+.welcome-logo {
+    font-size: 80px;
+    margin-bottom: 30px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.welcome-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #22c55e;
+    margin-bottom: 15px;
+}
+
+.welcome-subtitle {
+    font-size: 18px;
+    color: #9ca3af;
+    margin-bottom: 40px;
+    max-width: 300px;
+}
+
+.welcome-features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.welcome-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    width: 120px;
+}
+
+.welcome-feature i {
+    font-size: 32px;
+    color: #22c55e;
+}
+
+.welcome-feature span {
+    font-size: 14px;
+    color: #e5e7eb;
+}
+
+.welcome-start-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    padding: 20px 50px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+    transition: all 0.3s;
+}
+
+.welcome-start-btn:hover {
+    transform: scale(1.05);
+}
+
+.welcome-lang-select {
+    margin-top: 30px;
+}
+
+.welcome-lang-select p {
+    color: #9ca3af;
+    margin-bottom: 15px;
+}
+
+.lang-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.lang-buttons button {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e5e7eb;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.lang-buttons button:hover,
+.lang-buttons button.selected {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+/* ==================== RESPONSIVE ADJUSTMENTS ==================== */
+
+@media (max-width: 768px) {
+    .voice-fab {
+        width: 65px;
+        height: 65px;
+        bottom: 90px;
+        right: 15px;
+    }
+    
+    .voice-indicator-panel {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        bottom: 170px;
+    }
+    
+    .visual-nav {
+        padding: 10px 5px 20px;
+    }
+    
+    .visual-nav-item {
+        min-width: 60px;
+        padding: 8px;
+    }
+    
+    .visual-nav-item .nav-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .visual-nav-item .nav-label {
+        font-size: 10px;
+    }
+    
+    .crop-visual-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .crop-visual-item .crop-emoji {
+        font-size: 36px;
+    }
+    
+    body {
+        padding-bottom: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .voice-fab {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .crop-visual-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .big-action-btn {
+        padding: 18px 25px;
+        font-size: 18px;
+    }
+}
+
+/* ==================== PRINT STYLES ==================== */
+
+@media print {
+    .voice-fab,
+    .visual-nav,
+    .voice-indicator-panel,
+    .offline-banner,
+    .install-prompt {
+        display: none !important;
+    }
+}
+/* Removed: Migrated to farm-growth-hub */

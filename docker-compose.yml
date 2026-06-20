@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sustainable-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/srv/app:rw
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONPATH=/srv/app/backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: sustainable-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sustainable-streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/workspace:rw
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: sustainable-worker
+    command: ["celery", "-A", "app.celery_app:celery", "worker", "--loglevel=info", "-Q", "default"]
+    depends_on:
+      - backend
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./:/srv/app:rw
+    restart: unless-stopped
+
+# Optional: add redis/celery in future
+#  redis:
+#    image: redis:7
+#    container_name: sustainable-redis
+#    ports:
+#      - "6379:6379"
+#    restart: unless-stopped

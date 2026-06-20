@@ -1,0 +1,7 @@
+database/sustainable_farming.db filter=lfs diff=lfs merge=lfs -text
+models/market_model_corn.pkl filter=lfs diff=lfs merge=lfs -text
+models/market_model_rice.pkl filter=lfs diff=lfs merge=lfs -text
+models/market_model_soybean.pkl filter=lfs diff=lfs merge=lfs -text
+models/market_model_wheat.pkl filter=lfs diff=lfs merge=lfs -text
+models/temp_model.pkl filter=lfs diff=lfs merge=lfs -text
+models/sustainable_farming.db filter=lfs diff=lfs merge=lfs -text
